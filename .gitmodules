@@ -1,0 +1,3 @@
+[submodule "instrument-recognition"]
+	path = instrument-recognition
+	url = https://github.com/glennq/instrument-recognition.git
