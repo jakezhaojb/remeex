@@ -1,3 +1,6 @@
 [submodule "instrument-recognition"]
 	path = instrument-recognition
 	url = https://github.com/glennq/instrument-recognition.git
+[submodule "medleydb_src"]
+	path = medleydb_src
+	url = https://github.com/rabitt/medleydb.git
