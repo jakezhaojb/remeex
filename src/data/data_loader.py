@@ -7,12 +7,9 @@
 from __future__ import division
 import medleydb as mdb
 import os
-import numpy as np
-from scipy.io import wavfile
-from scipy.io import savemat
-import cPickle
 import glob
 import types
+from librosa import load
 
 
 def read_mdb_data_generator(tpath):
@@ -67,7 +64,7 @@ def read_mdb_melody_anno_aggr(data_tuple):
     return melody_anno
 
 
-def read_mdb_mix_audio(data_multi_track):
+def read_mdb_mix_audio(data_multi_track, sample_rate=22050):
     """This function calls for loading mdb data
     Args:
         data_multi_track: one iterate from mdb data generator
@@ -76,11 +73,11 @@ def read_mdb_mix_audio(data_multi_track):
     """
     assert isinstance(data_multi_track, mdb.multitrack.MultiTrack)
     path_to_wav = data_multi_track.raw_audio[0].mix_path
-    raw_data = wavfile.read(path_to_wav)[1]
+    raw_data = load(path_to_wav, sr=sample_rate)
     return raw_data
 
 
-def read_mdb_mix_audio_aggr(data_tuple):
+def read_mdb_mix_audio_aggr(data_tuple, sample_rate=22050):
     """This function calls for loading mdb data
     Args:
         data_tuple: (length, data_subset_generator)
@@ -95,5 +92,5 @@ def read_mdb_mix_audio_aggr(data_tuple):
     raw_audio = []
     for _ in range(length):
         elem = next(data_subset_generator)
-        raw_audio.append(read_mdb_mix_audio(elem))
+        raw_audio.append(read_mdb_mix_audio(elem, sample_rate))
     return raw_audio
