@@ -1,0 +1,9 @@
+# audio files
+*.wav
+
+# python c files
+*.pyc
+
+# data files
+*.bin
+*.csv
