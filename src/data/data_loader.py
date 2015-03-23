@@ -5,11 +5,26 @@
 # ****************************************************************************
 
 from __future__ import division
-import medleydb as mdb
 import os
+os.environ['MEDLEYDB_PATH'] = '/misc/vlgscratch2/LecunGroup/jakez/MedleyDB'
+import medleydb as mdb
 import glob
 import types
+import matplotlib as mpl
+mpl.use('Agg')
 from librosa import load
+
+# TODO give up the length.
+
+def read_mdb_all_data_generator():
+    """This function calls for loading mdb data
+    Return:
+        tuple: consist of two elements.
+               (length, generator)
+    """
+    dataset = mdb.load_all_multitracks()
+    data_length = len(list(dataset))  # O(n), can this be better?
+    return (data_length, dataset)
 
 
 def read_mdb_data_generator(tpath):
@@ -23,7 +38,7 @@ def read_mdb_data_generator(tpath):
     """
     assert isinstance(tpath, str)
     track_list = glob.glob(os.path.join(mdb.AUDIO_DIR), tpath)
-    data_length = len(track_list)
+    data_length = len(list(track_list))
     data_subset = mdb.load_multitracks(track_list)
     return (data_length, data_subset)
 
