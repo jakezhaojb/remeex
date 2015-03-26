@@ -5,9 +5,9 @@
 # Usages: dpark installation is recommended for acceleration.
 # ****************************************************************************
 
-# TODO How to check whether dpark is installed
-import dpark
-import librosa
+# TODO How to check whether dpark is installed?
+# TODO How to control the number of RDD made, in makeRDD()?
+?import librosa
 
 
 def feature_logfsgram(y, sr=22050):
@@ -46,7 +46,7 @@ def feature_mfcc(y, sr=22050):
     return mfccs
 
 
-def feature_logfsgram_aggr(y_aggr):
+def feature_logfsgram_aggr(dpark, y_aggr):
     """This function calls for parallelizing logfsgram calculations
     Args:
         y_aggr (list): list of raw time series raw audio data
@@ -62,7 +62,7 @@ def feature_logfsgram_aggr(y_aggr):
     return S_log_aggr
 
 
-def feature_melspectrogram_aggr(y_aggr):
+def feature_melspectrogram_aggr(dpark, y_aggr):
     """This function calls for parallelizing mel-scaled-spectrogram calculations
     Args:
         y_aggr (list): list of raw time series raw audio data
@@ -78,7 +78,7 @@ def feature_melspectrogram_aggr(y_aggr):
     return S_aggr
 
 
-def feature_mfcc_aggr(y_aggr):
+def feature_mfcc_aggr(dpark, y_aggr):
     """This function calls for parallelizing mfccs calculations
     Args:
         y_aggr (list): list of raw time series raw audio data
@@ -92,3 +92,4 @@ def feature_mfcc_aggr(y_aggr):
                             feature_mfcc
                             ).collect()
     return mfccs_aggr
+

@@ -14,17 +14,14 @@ import matplotlib as mpl
 mpl.use('Agg')
 from librosa import load
 
-# TODO give up the length.
 
 def read_mdb_all_data_generator():
     """This function calls for loading mdb data
     Return:
-        tuple: consist of two elements.
-               (length, generator)
+        generator
     """
     dataset = mdb.load_all_multitracks()
-    data_length = len(list(dataset))  # O(n), can this be better?
-    return (data_length, dataset)
+    return dataset
 
 
 def read_mdb_data_generator(tpath):
@@ -33,14 +30,12 @@ def read_mdb_data_generator(tpath):
         tpath: string; track folder paths
                regex accepted.
     Return:
-        tuple: consist of two elements.
-               (length, generator)
+        generator
     """
     assert isinstance(tpath, str)
     track_list = glob.glob(os.path.join(mdb.AUDIO_DIR), tpath)
-    data_length = len(list(track_list))
     data_subset = mdb.load_multitracks(track_list)
-    return (data_length, data_subset)
+    return data_subset
 
 
 def read_mdb_melody_anno(data_multi_track):
@@ -51,7 +46,7 @@ def read_mdb_melody_anno(data_multi_track):
         dict: keys are 'melody1', 'melody2', 'melody3';
               values are 2-D matrices of melody annotations from tracks
     """
-    # TODO is the 3 fixed?
+    # TODO is the 3 fixed? 
     assert isinstance(data_multi_track, mdb.multitrack.MultiTrack)
     k = ['melody1', 'melody2', 'melody3']
     v = [data_multi_track.melody1_annotation,
@@ -60,21 +55,16 @@ def read_mdb_melody_anno(data_multi_track):
     return dict(zip(k, v))
 
 
-def read_mdb_melody_anno_aggr(data_tuple):
+def read_mdb_melody_anno_aggr(data_subset_generator):
     """This function calls for loading mdb data
     Args:
-        data_tuple: (length, data_subset_generator)
+        data_subset_generator: generator
     Return:
         list: listing melody annotation dictionaries.
     """
-    # TODO this can be better.
-    assert isinstance(data_tuple, tuple)
-    length = data_tuple[0]
-    data_subset_generator = data_tuple[1]
     assert isinstance(data_subset_generator, types.GeneratorType)
     melody_anno = []
-    for _ in range(length):
-        elem = next(data_subset_generator)
+    for elem in data_subset_generator:
         melody_anno.append(read_mdb_melody_anno(elem))
     return melody_anno
 
@@ -89,23 +79,22 @@ def read_mdb_mix_audio(data_multi_track, sample_rate=22050):
     assert isinstance(data_multi_track, mdb.multitrack.MultiTrack)
     path_to_wav = data_multi_track.raw_audio[0].mix_path
     raw_data = load(path_to_wav, sr=sample_rate)
-    return raw_data
+    return raw_data[0]
 
 
-def read_mdb_mix_audio_aggr(data_tuple, sample_rate=22050):
+def read_mdb_mix_audio_aggr(data_subset_generator, sample_rate=22050):
     """This function calls for loading mdb data
     Args:
-        data_tuple: (length, data_subset_generator)
+        data_subset_generator: generator
     Return:
         list: listing raw wave data as np.array
     """
-    # TODO this can be better.
-    assert isinstance(data_tuple, tuple)
-    length = data_tuple[0]
-    data_subset_generator = data_tuple[1]
     assert isinstance(data_subset_generator, types.GeneratorType)
     raw_audio = []
-    for _ in range(length):
-        elem = next(data_subset_generator)
+    i = 1
+    for elem in data_subset_generator:
         raw_audio.append(read_mdb_mix_audio(elem, sample_rate))
+        i += 1
+        if i == 10:
+            break
     return raw_audio
