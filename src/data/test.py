@@ -20,7 +20,6 @@ def load_anno_mfcc_test():
     end = time()
     print "Time spent on reading all melody: %i" % (end - start)
 
-
 def main():
     load_anno_mfcc_test()
 

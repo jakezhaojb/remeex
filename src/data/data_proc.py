@@ -7,7 +7,8 @@
 
 # TODO How to check whether dpark is installed?
 # TODO How to control the number of RDD made, in makeRDD()?
-?import librosa
+import librosa
+import numpy as np
 
 
 def feature_logfsgram(y, sr=22050):
@@ -43,6 +44,7 @@ def feature_mfcc(y, sr=22050):
         np.array: MFCCs
     """
     mfccs = librosa.feature.mfcc(y=y, sr=sr)
+    mfccs = mfccs.reshape(mfccs.size,)
     return mfccs
 
 
@@ -93,3 +95,19 @@ def feature_mfcc_aggr(dpark, y_aggr):
                             ).collect()
     return mfccs_aggr
 
+
+def feature_mfcc_seg(y, sr=22050):
+    """This function calls for obtaining mfcc from segmented raw audios
+    Args:
+        y (np.ndarray): segmented raw audio data; shape=[num_segments, length_segment]
+        sr (int): sample rate
+    Return:
+        np.ndarray: MFCCs on segmented raw audios; shape=[num_segments,length_mfccs]
+    """
+    assert isinstance(y, np.ndarray)
+    length_mfccs = feature_mfcc(y[0,:], sr).size
+    mfccs = np.zeros(shape=[y.shape[0], length_mfccs])
+    for row in range(y.shape[0]):
+        mfccs[row,:] = feature_mfcc(y[row,:], sr)
+    return mfccs
+        

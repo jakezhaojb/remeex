@@ -10,9 +10,22 @@ os.environ['MEDLEYDB_PATH'] = '/misc/vlgscratch2/LecunGroup/jakez/MedleyDB'
 import medleydb as mdb
 import glob
 import types
+import numpy as np
 import matplotlib as mpl
 mpl.use('Agg')
 from librosa import load
+
+
+# Three types of melody
+melody_type_dict = {
+            1: 'melody1_annotation',
+            2: 'melody2_annotation',
+            3: 'melody3_annotation',
+        }
+
+# Note: reading melody must be ahead of reading audio.
+# TODO I am just lasy now; will wrap everything in a class... :)
+num_segments = 0
 
 
 def read_mdb_all_data_generator():
@@ -38,63 +51,60 @@ def read_mdb_data_generator(tpath):
     return data_subset
 
 
-def read_mdb_melody_anno(data_multi_track):
+def read_mdb_melody_anno(data_multi_track, melody_type):
     """This function calls for loading mdb data
     Args:
         data_multi_track: one iterate from mdb data generator
     Return:
-        dict: keys are 'melody1', 'melody2', 'melody3';
-              values are 2-D matrices of melody annotations from tracks
+        np.array: melody array; shape=[length,]
     """
-    # TODO is the 3 fixed? 
     assert isinstance(data_multi_track, mdb.multitrack.MultiTrack)
-    k = ['melody1', 'melody2', 'melody3']
-    v = [data_multi_track.melody1_annotation,
-         data_multi_track.melody2_annotation,
-         data_multi_track.melody3_annotation]
-    return dict(zip(k, v))
+    assert isinstance(melody_type, int)
+    try:
+        melody_anno_attr = getattr(data_multi_track, melody_type_dict.get(melody_type))
+    except:
+        raise Exception("This song doesn't have melody annotations")
+    melody_anno = map(lambda x: x[1], melody_anno_attr)
+    # Not sure about the first and the last hop
+    global num_segments
+    num_segments = len(melody_anno) - 2
+    return np.array(melody_anno[1:-1])
 
 
-def read_mdb_melody_anno_aggr(data_subset_generator):
-    """This function calls for loading mdb data
+def split_audio(data, num, sample_rate=22050):
+    """This function splits raw wave data into several pieces that matches melody annotations.
     Args:
-        data_subset_generator: generator
+        data: numpy.ndarray; shape=(length,)
     Return:
-        list: listing melody annotation dictionaries.
+        numpy.ndarray: (num_segments, length_segments)
     """
-    assert isinstance(data_subset_generator, types.GeneratorType)
-    melody_anno = []
-    for elem in data_subset_generator:
-        melody_anno.append(read_mdb_melody_anno(elem))
-    return melody_anno
-
+    if sample_rate == 22050:
+        length_seg = 128
+    elif sample_rate == 44100:
+        length_seg = 256
+    else:
+        raise Exception('Abnormal sample rate.')
+    # Splitting starts
+    # Kick out the first half frame.
+    data_clip = data[int(length_seg/2):]
+    split_data = np.zeros(shape=[num, length_seg])
+    for i in range(num):
+        split_data[i,:] = data_clip[i*length_seg:(i+1)*length_seg].reshape(1,length_seg)
+    return split_data
+    
 
 def read_mdb_mix_audio(data_multi_track, sample_rate=22050):
     """This function calls for loading mdb data
     Args:
         data_multi_track: one iterate from mdb data generator
     Return:
-        np.array: raw wave float numbers
+        np.ndarray: segmented raw audio float number; shape=[num_segments, length_seg]
     """
     assert isinstance(data_multi_track, mdb.multitrack.MultiTrack)
     path_to_wav = data_multi_track.raw_audio[0].mix_path
     raw_data = load(path_to_wav, sr=sample_rate)
-    return raw_data[0]
-
-
-def read_mdb_mix_audio_aggr(data_subset_generator, sample_rate=22050):
-    """This function calls for loading mdb data
-    Args:
-        data_subset_generator: generator
-    Return:
-        list: listing raw wave data as np.array
-    """
-    assert isinstance(data_subset_generator, types.GeneratorType)
-    raw_audio = []
-    i = 1
-    for elem in data_subset_generator:
-        raw_audio.append(read_mdb_mix_audio(elem, sample_rate))
-        i += 1
-        if i == 10:
-            break
-    return raw_audio
+    global num_segments
+    assert num_segments > 0 
+    split_mix_audio = split_audio(raw_data[0], num_segments)
+    num_segments = 0  # safeguard
+    return split_mix_audio
