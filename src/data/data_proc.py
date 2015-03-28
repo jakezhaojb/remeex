@@ -48,6 +48,19 @@ def feature_mfcc(y, sr=22050):
     return mfccs
 
 
+def feature_cqt(y, sr=22050):
+    """This function calls for obtaining MFCC
+    Args:
+        y (array): time series raw audio data
+        sr (int): sample rate
+    Return:
+        np.array: CQTs
+    """
+    cqts = librosa.cqt(y=y, sr=sr)
+    cqts = cqts.reshape(cqts.size,)
+    return cqts
+
+
 def feature_logfsgram_aggr(dpark, y_aggr):
     """This function calls for parallelizing logfsgram calculations
     Args:
@@ -111,3 +124,18 @@ def feature_mfcc_seg(y, sr=22050):
         mfccs[row,:] = feature_mfcc(y[row,:], sr)
     return mfccs
         
+
+def feature_cqt_seg(y, sr=22050):
+    """This function calls for obtaining mfcc from segmented raw audios
+    Args:
+        y (np.ndarray): segmented raw audio data; shape=[num_segments, length_segment]
+        sr (int): sample rate
+    Return:
+        np.ndarray: CQTs on segmented raw audios; shape=[num_segments,length_mfccs]
+    """
+    assert isinstance(y, np.ndarray)
+    length_cqts = feature_cqt(y[0,:], sr).size
+    cqts = np.zeros(shape=[y.shape[0], length_cqts])
+    for row in range(y.shape[0]):
+        cqts[row,:] = feature_cqt(y[row,:], sr)
+    return cqts
