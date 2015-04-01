@@ -139,3 +139,17 @@ def feature_cqt_seg(y, sr=22050):
     for row in range(y.shape[0]):
         cqts[row,:] = feature_cqt(y[row,:], sr)
     return cqts
+
+def melody_to_midi(melody,fmin=None):
+    '''Thus function converts melody frequencies to midi integers
+    Args:
+        melody (np.ndarray): nd array of frequencies in hertz (zeros set back to zero after transform)
+        fmin (float): normalize output to this minimum frequency
+    Return:
+        np.ndarray: integer array of midi notes (rounded to nearest note)
+    '''
+    midi = librosa.hz_to_midi(melody)
+    if fmin != None:
+        midi = midi - librosa.hz_to_midi(fmin)
+    midi[melody == 0] = 0
+    return np.round(midi).astype('int')

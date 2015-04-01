@@ -47,12 +47,15 @@ def cqt_main():
     # Path
     save_path_cqt = os.path.join(save_path, 'cqt')
     save_path_anno = os.path.join(save_path, 'melody_type' + str(melody_type))
+    save_path_anno_notes = os.path.join(save_path, 'melody_notes' + str(melody_type))
     os.system('mkdir -p ' + save_path_cqt)
     os.system('mkdir -p ' + save_path_anno)
+    os.system('mkdir -p ' + save_path_anno_notes)
     # Extracting
     for g in generator:
         try:
             name, m, r = read_one_song(g)
+            notes = melody_to_midi(m,fmin=32.7032)
         except:
             continue
         if not os.path.exists(os.path.join(save_path_cqt, name+'.csv')):
@@ -60,6 +63,8 @@ def cqt_main():
             np.savetxt(os.path.join(save_path_cqt, name+'.csv'), cqts, fmt='%.4f', delimiter=',')
         if not os.path.exists(os.path.join(save_path_anno, name+'.csv')):
             np.savetxt(os.path.join(save_path_anno, name+'.csv'), m, fmt='%.4f', delimiter=',')
+        if not os.path.exists(os.path.join(save_path_anno_notes, name+'.csv')):
+            np.savetxt(os.path.join(save_path_anno_notes, name+'.csv'), notes, fmt='%d', delimiter=',')
         print "==> %s done." % name
     print "==> done!"
 
