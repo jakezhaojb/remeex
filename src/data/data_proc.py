@@ -134,11 +134,33 @@ def feature_cqt_seg(y, sr=22050):
         np.ndarray: CQTs on segmented raw audios; shape=[num_segments,length_mfccs]
     """
     assert isinstance(y, np.ndarray)
+    assert len(y.shape) == 2
     length_cqts = feature_cqt(y[0,:], sr).size
     cqts = np.zeros(shape=[y.shape[0], length_cqts])
     for row in range(y.shape[0]):
         cqts[row,:] = feature_cqt(y[row,:], sr)
     return cqts
+
+
+def feature_cqt_whole(y, sr=22050):
+    """This function calls for obtaining mfcc from segmented raw audios
+    Args:
+        y (np.ndarray): segmented raw audio data; shape=[num_segments, length_segment]
+        sr (int): sample rate
+    Return:
+        np.ndarray: CQTs on segmented raw audios; shape=[num_segments,length_mfccs]
+    """
+    assert isinstance(y, np.ndarray)
+    assert len(y.shape) == 1
+    if sr == 22050:
+        length_seg = 128
+    elif sr == 44100:
+        length_seg = 256
+    else:
+        raise Exception('Abnormal sample rate.')
+    cqts = librosa.cqt(y, sr=sr, hop_length=length_seg)
+    return cqts[:, 1:-1].T
+
 
 def melody_to_midi(melody,fmin=None):
     '''Thus function converts melody frequencies to midi integers
