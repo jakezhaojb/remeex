@@ -47,7 +47,7 @@ def cqt_main_seg():
     # Path
     save_path_cqt = os.path.join(save_path, 'cqt')
     save_path_anno = os.path.join(save_path, 'melody_type' + str(melody_type))
-    save_path_anno_notes = os.path.join(save_path, 'melody_notes'))
+    save_path_anno_notes = os.path.join(save_path, 'melody_notes')
     os.system('mkdir -p ' + save_path_cqt)
     os.system('mkdir -p ' + save_path_anno)
     os.system('mkdir -p ' + save_path_anno_notes)
@@ -96,6 +96,7 @@ def cqt_main_whole():
         print "==> %s done." % name
     print "==> done!"
 
+
 def raw_main():
     print "==> Raw extracting"
     generator = read_mdb_all_data_generator()
@@ -123,5 +124,45 @@ def raw_main():
     print "==> done!"
 
 
+def raw_main_seg():
+    print "==> Segmented Raw extracting"
+    generator = read_mdb_all_data_generator()
+    # Path
+    save_path_raw = os.path.join(save_path, 'raw_seg')
+    os.system('mkdir -p ' + save_path_raw)
+    # Extracting
+    for g in generator:
+        try:
+            name, m, r = read_one_song(g)
+        except:
+            continue
+        r_seg = split_audio(y, m.shape[0])
+        if not os.path.exists(os.path.join(save_path_raw, name+'.csv')):
+            np.savetxt(os.path.join(save_path_raw, name+'.csv'), r_seg, fmt='%.4f', delimiter=',')
+        print "==> %s done." % name
+    print "==> done!"
+
+
+def raw_main_whole():
+    print "==> Segmented Raw extracting"
+    generator = read_mdb_all_data_generator()
+    # Path
+    save_path_raw = os.path.join(save_path, 'raw_whole')
+    os.system('mkdir -p ' + save_path_raw)
+    # Extracting
+    for g in generator:
+        try:
+            name, m, r = read_one_song(g)
+        except:
+            continue
+        # for sample_rate = 22050
+        r_whole = y[64: 64 + m.shape[0]*128]
+        if not os.path.exists(os.path.join(save_path_raw, name+'.csv')):
+            np.savetxt(os.path.join(save_path_raw, name+'.csv'), r_whole, fmt='%.4f', delimiter=',')
+        print "==> %s done." % name
+    print "==> done!"
+
+
 if __name__ == '__main__':
-    raw_main()
+    raw_main_seg()
+    raw_main_whole()

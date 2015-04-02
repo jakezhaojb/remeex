@@ -158,8 +158,9 @@ def feature_cqt_whole(y, sr=22050):
         length_seg = 256
     else:
         raise Exception('Abnormal sample rate.')
+    y = y[length_seg:]  # Important
     cqts = librosa.cqt(y, sr=sr, hop_length=length_seg)
-    return cqts[:, 1:-1].T
+    return cqts[:, :-1].T
 
 
 def melody_to_midi(melody,fmin=None):

@@ -1,10 +1,8 @@
-
 require 'torch'
 require 'audio'
 require 'csvigo'
 require 'nn'
 require 'optim'
---require('mobdebug').start()
 
 torch.setdefaulttensortype('torch.FloatTensor')
 
