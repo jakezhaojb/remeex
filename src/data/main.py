@@ -136,7 +136,7 @@ def raw_main_seg():
             name, m, r = read_one_song(g)
         except:
             continue
-        r_seg = split_audio(y, m.shape[0])
+        r_seg = split_audio(r, m.shape[0])
         if not os.path.exists(os.path.join(save_path_raw, name+'.csv')):
             np.savetxt(os.path.join(save_path_raw, name+'.csv'), r_seg, fmt='%.4f', delimiter=',')
         print "==> %s done." % name
@@ -156,7 +156,7 @@ def raw_main_whole():
         except:
             continue
         # for sample_rate = 22050
-        r_whole = y[64: 64 + m.shape[0]*128]
+        r_whole = r[64: 64 + m.shape[0]*128]
         if not os.path.exists(os.path.join(save_path_raw, name+'.csv')):
             np.savetxt(os.path.join(save_path_raw, name+'.csv'), r_whole, fmt='%.4f', delimiter=',')
         print "==> %s done." % name
