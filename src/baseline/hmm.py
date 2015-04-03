@@ -1,27 +1,23 @@
 import sys
 sys.path.append('../data')
 
-import datasplits
-import data_proc
-    
+import load_melodies
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import seaborn as sns
 
-train,validation,test = datasplits.readsplits(path='../data/datasplits.txt')
+melodies_folderpath = '../../../melody_type1'
+datasplits_filepath = '../data/datasplits.txt'
 
+melodies = load_melodies.load_melodies(melodies_folderpath,datasplits_filepath)
 
-melody_path = '../../../melody_type1'
+nclasses = 85
 
-melody_list_train = []
-melody_list_validation = []
+A = np.zeros((nclasses,nclasses))
 
-for t in train:
-    melody_list_train.append(np.loadtxt(os.path.join(melody_path,t+'.csv'),delimiter=','))
-for t in validation:
-    melody_list_validation.append(np.loadtxt(os.path.join(melody_path,t+'.csv'),delimiter=','))
+for t in melodies.train_list:
+    tl = t[:-1]
+    tr = t[1:]
     
-melodies = data_proc.melody_to_midi(np.hstack(melody_list_train),fmin=32.7023)
-melodies_validation = data_proc.melody_to_midi(np.hstack(melody_list_validation),fmin=32.7023)
+    
