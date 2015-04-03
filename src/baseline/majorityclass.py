@@ -32,7 +32,7 @@ plt.show()
 n,bins,_ = plt.hist(melodies[melodies>0],bins=range(85))
 majority_class = np.arange(85)[n==max(n)][0]
 majority_class_prob_train = n[majority_class]*1.0/sum(n)*100
-majority_class_prob_valid = sum(melodies_validation==majority_class)*1.0/sum(melodies_validation>0)
+majority_class_prob_valid = sum(melodies_validation==majority_class)*1.0/sum(melodies_validation>0)*100
 title = 'histogram of melody present\n'
 title = title + 'majority class=%d\n' % majority_class
 title = title + 'train: P(y=38|melody present)=%.2f%%\n' % majority_class_prob_train
