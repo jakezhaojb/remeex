@@ -5,10 +5,10 @@ import pandas as pd
 import csv
 
 def readsplits(path = 'datasplits.csv'):    
-    train = []
-    validation = []
-    test = []
-    
+    '''
+        returns 3 lists: train,validation,test
+        each list contains the names of songs
+    '''
     splits = pd.read_csv(path,header=None)
     splits.columns = ['split','song_name']
     
