@@ -93,7 +93,7 @@ def split_audio(data, num, sample_rate=22050):
     return split_data
     
 
-def read_mdb_mix_audio(data_multi_track, sample_rate=22050):
+def read_mdb_mix_audio(data_multi_track, sample_rate=22050, split=True):
     """This function calls for loading mdb data
     Args:
         data_multi_track: one iterate from mdb data generator
@@ -103,6 +103,8 @@ def read_mdb_mix_audio(data_multi_track, sample_rate=22050):
     assert isinstance(data_multi_track, mdb.multitrack.MultiTrack)
     path_to_wav = data_multi_track.raw_audio[0].mix_path
     raw_data = load(path_to_wav, sr=sample_rate)
+    if not split:
+        return raw_data[0]
     global num_segments
     assert num_segments > 0 
     split_mix_audio = split_audio(raw_data[0], num_segments)
