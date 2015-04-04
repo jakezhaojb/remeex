@@ -7,7 +7,7 @@ older versions:
 
 load using the following commands:
 
-'''
+
 	import os
 	import pickle
 
@@ -20,4 +20,3 @@ load using the following commands:
 	    return pyObj
 
 	A,means,covmats,num_samples = pickleLoad(os.path.join(models_dir,'hmm2'))
-'''
