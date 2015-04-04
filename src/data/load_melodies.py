@@ -59,14 +59,14 @@ class load_melodies():
         
         melody_list = []
         
-        for idx,songname in enumerate(split):            
-            melody_list.append(np.loadtxt(os.path.join(self.melody_folderpath,songname+'.csv'),delimiter=','))
+        for idx,songname in enumerate(split):    
+            melody = np.loadtxt(os.path.join(self.melody_folderpath,songname+'.csv'),delimiter=',')
+            if convert_to_notes:
+                melody = data_proc.melody_to_midi(melody,fmin=fmin)
+            melody_list.append(melody)
             
         melodies = np.hstack(melody_list)
         
-        if convert_to_notes:
-            melodies = data_proc.melody_to_midi(melodies,fmin=fmin)
-            
         return melodies,melody_list
         
     
