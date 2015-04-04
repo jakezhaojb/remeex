@@ -50,7 +50,11 @@ def combine_save_aggr_main(data_folder, target_folder, folder_name):
         data_file = args[0]
         target_file = args[1]
         assert data_file == target_file
-        subfolder_name = os.path.join(folder_name, data_file)
+        if data_file.find('.csv') != -1:
+            data_file_nocsv = data_file[data_file.find('.csv')]
+        else:
+            data_file_nocsv = data_file
+        subfolder_name = os.path.join(folder_name, data_file_nocsv)
         data_file_complete = os.path.join(data_folder, data_file)
         target_file_complete = os.path.join(target_folder, target_file)
         combine_save_aggr(data_file_complete, target_file_complete, subfolder_name)

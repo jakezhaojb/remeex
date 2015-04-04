@@ -6,10 +6,16 @@ By Jake
 require 'datasource'
 require 'paths'
 local Threads = require 'threads'
-local Worker = require 'threads.worker'
-require 'easythreads'
 
 local OneSecondDatasource, parent = torch.class('OneSecondDatasource', 'Datasource')
+
+function sort_by_value(tab)
+   function compare(a,b)
+       return a[2] < b[2]
+   end
+   table.sort(tab, compare)
+   return tab
+end
 
 -- params:
 --   batchSize
@@ -22,15 +28,18 @@ local OneSecondDatasource, parent = torch.class('OneSecondDatasource', 'Datasour
 function OneSecondDatasource:__init(params)
    parent.__init(self)
    if params.datadir == nil then
-      params.datadir = '/scratch/jz1672/remeex/features/t7b_type1_raw/'
+      params.datadir = '/scratch/jakez/remeex/2015_4_04_first/'
+   end
    params.traindir = params.datadir .. 'train'
-   params.trainTable = params.datadir .. 'trTable.lua'
    params.testdir = params.datadir .. 'test'
-   params.testTable = params.datadir .. 'teTable.lua'
-   param.numTrain = 948
-   param.numTest = 594
-   param.lenSample = 22016
-   param.lenLabel = 172
+   dofile(params.datadir .. 'train_table.lua')
+   params.numTrain = train_count
+   params.train_table = sort_by_value(train_idx_table)
+   dofile(params.datadir .. 'test_table.lua')
+   params.numTest = test_count
+   params.test_table = sort_by_value(test_idx_table)
+   params.lenSample = 22016
+   params.lenLabel = 172
    self.params = params
    self.tensortype = torch.getdefaulttensortype()
 end
@@ -48,17 +57,18 @@ end
 
 function OneSecondDatasource:load_idx(traindir, idx)
    assert(paths.dirp(traindir), 'train director not found.')
-   require(self.params.trainTable)
-   for k, v in pairs(train_table) do
-      if idx > v then
+   local train_table = self.params.train_table
+   for i = 1, #train_table do
+      if idx > train_table[i][2] then
          -- Doing nothing
       else
-         return paths.concat(self.params.traindir, idx_sub .. 't7b')
+         local idx_sub = idx - train_table[i-1][2] - 1
+         return paths.concat(self.params.traindir, train_table[i-1][1], idx_sub .. '.t7b')
       end
    end
    -- If the last
-   idx_sub = idx - train_table[#train_table]
-   return paths.concat(self.params.traindir, idx_sub .. 't7b')
+   local idx_sub = idx - train_table[#train_table][2]
+   return paths.concat(self.params.traindir, train_table[#train_table][1], idx_sub .. '.t7b')
 end
 
 
@@ -66,13 +76,14 @@ function OneSecondDatasource:nextBatch(batchSize, set, trans_flag)
    assert(set == 'train') -- TODO
    assert(batchSize == self.params.batchSize) --for now, batchSize is fixed
    -- Total number of training samples
-   local idx = torch.randperm(self.numTrain)[{1,batchSize}]
-   local data = torch.rand(batchSize, self.lenSample)
-   local label = torch.rand(batchSize, self.lenLabel)
-   for i = 1, idx do
-      local data_elem = self.load_idx(self.traindir, idx)
-      data[{i, {}}]:copy(data_elem)
-      label[{i, {}}]:copy(label_elem)
+   local idx = torch.random(self.params.numTrain-batchSize)
+   local data = torch.rand(batchSize, 1, 1, self.params.lenSample)  -- First 1 is nChannel, and second is flattened factor
+   local label = torch.rand(batchSize, self.params.lenLabel)
+   for i = 1, batchSize do
+      local data_elem_path = self:load_idx(self.params.traindir, idx+i-1) -- TODO
+      local data_elem = torch.load(data_elem_path)
+      data[{i,{},{},{}}]:copy(data_elem[1])
+      label[{i, {}}]:copy(data_elem[2])
    end
    return {data, label}
 end
@@ -81,16 +92,19 @@ end
 function OneSecondDatasource:nextIteratedBatch(batchSize, set, idx, trans_flag)
    assert(set == 'train') -- TODO
    assert(batchSize == self.params.batchSize) --TODO
-   local data = torch.rand(batchSize, self.lenSample)
-   local label = torch.rand(batchSize, self.lenLabel)
-   if idx*batchSize > self.numTrain then
+   local data = torch.rand(batchSize, 1, 1, self.params.lenSample)  -- First 1 is nChannel, and second is flattened factor
+   local label = torch.rand(batchSize, self.params.lenLabel)
+   if (idx-1)*batchSize > self.params.numTrain then
       return nil
-   end
-   for i = 1, batchSize do
-      local data_idx = batchSize*(idx-1) + i
-      local data_elem = self.load_idx(self.traindir, data_idx)
-      data[{i, {}}]:copy(data_elem)
-      label[{i, {}}]:copy(label_elem)
+   else
+      local length = math.min(self.params.numTrain, idx*batchSize) - ((idx-1)*batchSize)
+      for i = 1, length do
+         local data_idx = batchSize*(idx-1) + i
+         local data_elem_path = self:load_idx(self.params.traindir, data_idx)
+         local data_elem = torch.load(data_elem_path)
+         data[{i,{},{},{}}]:copy(data_elem[1])
+         label[{i, {}}]:copy(data_elem[2])
+      end
    end
    return {data, label}
 end

@@ -23,7 +23,7 @@ cmd:option('--dataset', 'osecond', 'Dataset [osecond]')
 -- model
 cmd:option('--nPlanes', '256-512-512', 'Number of planes, eg. 16-32-16')
 cmd:option('--kSizes', '3-3-3', 'Kernel sizes, eg. 9-7-5')
-cmd:option('--stride', '128-64-32', 'stride, eg. 128-64-32')
+cmd:option('--stride', '1-1-1', 'stride, eg. 128-64-32')
 cmd:option('--poolSizes', '2-0-2', 'Pooling Sizes, eg. 2-0-2')
 -- training
 cmd:option('--batchsize', 64, 'Minibatch size')
@@ -42,7 +42,7 @@ torch.setdefaulttensortype('torch.FloatTensor')
 dataset = opt.dataset
 
 params = {batchSize = opt.batchsize} -- TODO
-datasource = ImageNetDatasource(params)
+datasource = OneSecondDatasource(params)
 opt.inputSize = 22016
 opt.labelSize = 172
 
@@ -91,10 +91,10 @@ opt.planeSizes = {opt.inputSize}
 -- pool
 for i = 1, #opt.poolSizes do
    local size = opt.planeSizes[i]
-   if pool_flag[i] then
-      opt.planeSizes[i+1] = {math.floor(size/opt.poolSizes[i])}
+   if opt.poolSizes[i] ~= 0 then
+      opt.planeSizes[i+1] = math.floor(size/opt.poolSizes[i])
    else
-      opt.planeSizes[i+1] = {size}
+      opt.planeSizes[i+1] = size
    end
 end
 -------------------------- MODEL --------------------------------------

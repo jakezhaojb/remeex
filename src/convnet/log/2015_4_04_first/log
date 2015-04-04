@@ -1,0 +1,33 @@
+**************************************************************************************************************************************
+train_idx_table = {
+	 {'Bounty', 0},
+	 {'BorrowedHeart', 289},
+	 {'Britpop', 530},
+	 {'Beatles', 566},
+	 {'BesterJungling', 602},
+	 {'BrokenPledgeChicagoReel', 776},
+	 {'BebopJazz', 956},
+	 {'BoothShotLincoln', 1059},
+	 {'Beethoven', 1314},
+	 {'Boys', 1341}}
+train_count = 1494
+
+
+test_idx_table = {
+	 {'PigsFoot', 0},
+	 {'Pilot', 367},
+	 {'Punk', 849},
+	 {'Pachelbel', 877},
+	 {'Phantom', 1180}}
+test_count = 1327
+
+
+rose3-tmux-Tab1
+th step0.lua --devid 2 --dataset osecond --nPlanes 128-128-256-256 --kSizes 255-127-127-95 --poolSizes 43-8-8-2 --stride 1-1-1-1 --lr 0.001 --mom 0.5 --batchsize 32
+
+rose3-tmux-Tab2
+th step0.lua --devid 1 --dataset osecond --nPlanes 128-256-256-512 --kSizes 255-127-127-95 --poolSizes 43-8-8-2 --stride 1-1-1-1 --lr 0.001 --mom 0.5 --batchsize 32
+
+**************************************************************************************************************************************
+
+
