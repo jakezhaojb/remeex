@@ -4,7 +4,13 @@ import random
 import pandas as pd
 import csv
 
-def readsplits(path = 'datasplits.csv'):    
+
+cqt_path = '../../../cqt_44k_hop256_bin84_oct12'
+
+
+
+
+def readsplits(path = 'datasplits.txt'):    
     '''
         returns 3 lists: train,validation,test
         each list contains the names of songs
@@ -18,7 +24,7 @@ def readsplits(path = 'datasplits.csv'):
     
     return train,validation,test
 
-path = '../../../cqt_44k_hop256_bin84_oct12'
+
 def generatesplits(path):    
     random.seed(13)
     np.random.seed(13)
