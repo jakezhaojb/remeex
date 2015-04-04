@@ -20,4 +20,3 @@ data_copy[1] = data['1']
 data_copy[2] = data['2']
 
 torch.save(opt.dst, data_copy)
-print('Conversion done.')
