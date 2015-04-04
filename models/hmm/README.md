@@ -1,12 +1,13 @@
-best version: hmm2.pk1   (A,means,covmats,num_samples)
+latest version: 
+.* hmm2.pk1   tuple(A,means,covmats,num_samples)
 
 older versions:
 
-hmm.pk1    (A,means,covmats)
+.* hmm.pk1    tuple(A,means,covmats)
 
 load using the following commands:
 
-'
+'''python
 import os
 import pickle
 
@@ -19,4 +20,4 @@ def pickleLoad(inputName):
     return pyObj
 
 A,means,covmats,num_samples = pickleLoad(os.path.join(models_dir,'hmm2'))
-'
+'''
