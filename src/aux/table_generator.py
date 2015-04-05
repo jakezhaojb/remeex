@@ -18,12 +18,13 @@ def get_file_list(folder, savepath, table_name):
             continue
         
         num_file = len(os.listdir(os.path.join(folder, song)))
-        file.write('\t [' + song + '] = ' + str(count))
+        file.write('\t {' + "\'" + song + "\', " + str(count) + '}')
         if song == song_file_list[-1]:
-            file.write('}')
+            file.write('} \n')
         else:
             file.write(', \n')
         count += num_file
+    file.write(table_name + '_count = ' + str(count))
     file.close()
 
 

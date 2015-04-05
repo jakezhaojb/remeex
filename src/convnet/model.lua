@@ -8,16 +8,18 @@ require 'cunn'
 
 function get_conv_pool(nInputs, nOutputs, kSize, stride, poolSize)
    local struct = nn.Sequential()
-   struct:add(nn.TemporalConvolution(nInputs, nOutputs, kSize, stride))
+   struct:add(nn.SpatialZeroPadding((kSize-1)/2, (kSize-1)/2, 0, 0))
+   struct:add(nn.SpatialConvolutionMM(nInputs, nOutputs, kSize, 1, stride, 1))
    struct:add(nn.ReLU())
-   struct:add(nn.TemporalMaxPooling(poolSize))
+   struct:add(nn.SpatialMaxPooling(poolSize,1))
    return struct
 end
 
 
 function get_conv(nInputs, nOutputs, kSize, stride)
    local struct = nn.Sequential()
-   struct:add(nn.TemporalConvolution(nInputs, nOutputs, kSize, stride))
+   struct:add(nn.SpatialZeroPadding((kSize-1)/2, (kSize-1)/2, 0, 0))
+   struct:add(nn.SpatialConvolutionMM(nInputs, nOutputs, kSize, 1, stride, 1))
    struct:add(nn.ReLU())
    return struct
 end
@@ -43,10 +45,10 @@ function get_softmax_dropout(nClasses, nInputs, inputPlaneSize, pDropout, nTrans
 	       :setNumInputDims(3))
    softmax:add(nn.Dropout(pDropout))
    softmax:add(nn.Linear(nInputs*inputPlaneSize, nTransition[1]))
-   softmax:add(cudnn.ReLU())
+   softmax:add(nn.ReLU())
    softmax:add(nn.Dropout(pDropout))
    softmax:add(nn.Linear(nTransition[1], nTransition[2]))
-   softmax:add(cudnn.ReLU())
+   softmax:add(nn.ReLU())
    softmax:add(nn.Linear(nTransition[2], nClasses))
    softmax:add(nn.LogSoftMax())
    return softmax
