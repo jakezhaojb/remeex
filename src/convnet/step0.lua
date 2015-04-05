@@ -124,7 +124,7 @@ local k = 1
 parameters, gradParameters = model:getParameters() 
 for iEpoch = 1, opt.nepoches do
    model:training()
-   local NLL_err = 0
+   local L2_error = 0
    cutorch.synchronize()
    local tt = torch.Timer()
    for iIter = 1, opt.epochsize do
@@ -134,7 +134,7 @@ for iEpoch = 1, opt.nepoches do
       local label = data[2]:cuda()
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
-      NLL_err = NLL_err + loss
+      L2_error = L2_error + loss
       local dre_do = criterion:backward(y, label)
       model:backward(x, dre_do)
       -- Momentum added
@@ -152,8 +152,15 @@ for iEpoch = 1, opt.nepoches do
    end
    cutorch.synchronize()
    print('Total time per iteration ' .. tt:time()['real'] / opt.epochsize)
-   NLL_err = NLL_err / opt.epochsize
-   print(iEpoch, 'NLL=' .. NLL_err)
+   L2_error = L2_error / opt.epochsize
+   print(iEpoch, 'L2_Error=' .. L2_error)
+
+   -- check nan
+   if iEpoch % 3 == 0 then
+      if check_nan_tensor(parameters) then
+         error('Alert: nan learnt..')
+      end
+   end
 
    if iEpoch % 10 == 0 then      
       -- TODO evaluation code.
