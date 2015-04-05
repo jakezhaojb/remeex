@@ -9,7 +9,6 @@ import load_cqt
 import numpy as np
 import os
 import pickle
-import io
 
 from sklearn import hmm
 
