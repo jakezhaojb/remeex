@@ -119,13 +119,13 @@ report.append(validation_voice_det_conf)
 report.append('\nconfusion matrix (%):\n')
 report.append(np.round(validation_voice_det_conf*100.0/np.sum(validation_voice_det_conf),1))
 
-with open(os.path.join(output_dir,'report.txt'),'w+') as file:
+with open(os.path.join(models_dir,'report.txt'),'w+') as file:
     for r in report:
         print r
         print >>file,r
 
 
-pickleIt((train_accuracies,validation_accuracies),os.path.join(output_dir,'accuracies'))
+pickleIt((train_accuracies,train_voice_det_conf,validation_accuracies,validation_voice_det_conf),os.path.join(models_dir,'accuracies'))
     
 
 
