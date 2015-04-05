@@ -23,13 +23,13 @@ models_dir = '../../models/hmm'
 
 nclasses = 85
 nCQTbins = 84   
-   
+
 
 melodies = load_melodies.load_melodies(melodies_folderpath,datasplits_filepath)
 
 IJ = 0
 for i,t in enumerate(melodies.train_list):
-    print "melody",i,"of",len(melodies.train_list)
+    print "melody",i+1,"of",len(melodies.train_list)
     I = t[:-1].reshape(-1,1,1)==np.arange(nclasses).reshape(1,-1,1)
     J = t[1:].reshape(-1,1,1)==np.arange(nclasses).reshape(1,1,-1)
     IJ = IJ + np.sum(np.logical_and(I,J),axis=0)

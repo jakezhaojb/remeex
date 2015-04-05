@@ -14,7 +14,7 @@ def pickleLoad(inputName):
     return pyObj
 
 
-A,means,covmats,num_samples = pickleLoad(os.path.join(models_dir,'hmm2'))
+A,means,covmats,num_samples = pickleLoad(os.path.join(models_dir,'hmm'))
 
 nclasses = A.shape[0]
 
