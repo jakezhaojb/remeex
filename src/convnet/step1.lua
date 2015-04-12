@@ -1,5 +1,6 @@
 --[[
-First feedforward Convnet
+Second feedforward Convnet
+Its labels is simply the middle melody annotation within wach frame.
 By Jake
 --]]
 
@@ -131,7 +132,7 @@ for iEpoch = 1, opt.nepoches do
       model:zeroGradParameters()
       local data = datasource:nextBatch(opt.batchsize, 'train')
       local x = data[1]:cuda()
-      local label = data[2]:cuda()
+      local label = data[2][{ {}, {86,87} }]:cuda()
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
       L2_error = L2_error + loss
