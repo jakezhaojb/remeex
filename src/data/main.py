@@ -6,6 +6,7 @@ from time import time
 from data_loader import *
 from data_proc import *
 import numpy as np
+import math
 
 save_path = '/scratch/jz1672/remeex/features'
 os.system('mkdir -p ' + save_path)
@@ -143,8 +144,42 @@ def raw_main_seg():
     print "==> done!"
 
 
+def raw_main_seg_stride(stride=1024):
+    print "==> Segmented Raw (with stride) extracting"
+    generator = read_mdb_all_data_generator()
+    # Path
+    save_path_raw = os.path.join(save_path, 'raw_seg_stride_' + str(stride))
+    save_path_label = os.path.join(save_path, 'raw_seg_stride_' + str(stride) + '_label')
+    os.system('mkdir -p ' + save_path_raw)
+    os.system('mkdir -p ' + save_path_label)
+    # for sample_rate = 22050
+    assert stride % 128 == 0
+    for g in generator:
+        try:
+            name, m, r = read_one_song(g)
+        except:
+            continue
+        # for sample_rate = 22050
+        offset = 64
+        offset_label = 0
+        length = int(math.floor((len(r)-64-22016)/stride)) # +1
+        r_seg_stride = np.zeros((length, 22016))
+        m_seg_stride = np.zeros((length, 172))
+        for i in range(length):
+            r_seg_stride[i, :] = r[offset: offset + 22016]  # To match the hop sizes
+            m_seg_stride[i, :] = m[offset_label: offset_label+172]
+            offset += stride
+            offset_label += stride / 128
+        if not os.path.exists(os.path.join(save_path_raw, name+'.csv')):
+            np.savetxt(os.path.join(save_path_raw, name+'.csv'), r_seg_stride, fmt='%.4f', delimiter=',')
+        if not os.path.exists(os.path.join(save_path_label, name+'.csv')):
+            np.savetxt(os.path.join(save_path_label, name+'.csv'), m_seg_stride, fmt='%.4f', delimiter=',')
+        print "==> %s done." % name
+    print '==> done.'
+
+
 def raw_main_whole():
-    print "==> Segmented Raw extracting"
+    print "==> Whole Raw extracting"
     generator = read_mdb_all_data_generator()
     # Path
     save_path_raw = os.path.join(save_path, 'raw_whole')
@@ -164,5 +199,4 @@ def raw_main_whole():
 
 
 if __name__ == '__main__':
-    raw_main_seg()
-    raw_main_whole()
+    raw_main_seg_stride()
