@@ -29,7 +29,7 @@ cmd:option('--poolSizes', '2-0-2', 'Pooling Sizes, eg. 2-0-2')
 -- training
 cmd:option('--batchsize', 64, 'Minibatch size')
 cmd:option('--nepoches', 1000, 'Number of "eopches"')
-cmd:option('--epochsize', 1000, 'Number of samples per "epoch"')
+cmd:option('--epochsize', 3000, 'Number of samples per "epoch"')
 cmd:option('--lr', 0.02, 'Learning rate')
 cmd:option('--lrd', 5e-5, 'Learning rate decay')
 cmd:option('--mom', 0.9, 'momentum, eg. 0.9')
@@ -45,7 +45,7 @@ dataset = opt.dataset
 params = {batchSize = opt.batchsize} -- TODO
 datasource = OneSecondDatasource(params)
 opt.inputSize = 22016
-opt.labelSize = 172
+opt.labelSize = 2
 
 -- get the model name
 local irrelevant = {['nepoches'] = true,
@@ -53,7 +53,7 @@ local irrelevant = {['nepoches'] = true,
 		    ['epochsize'] = true,
 		    ['numthreads'] = true,
           ['lrd'] = true}
-local modelname = 'model'
+local modelname = 'model1'
 for k, v in pairs(opt) do
    if not irrelevant[k] then
       local v2 = ''

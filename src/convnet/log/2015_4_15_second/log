@@ -1,0 +1,28 @@
+**************************************************************************************************************************************
+train_idx_table = { 
+	 {'Definition', 0}, 
+	 {'ChineseYaoZu', 1260}, 
+	 {'Bounty', 1578}, 
+	 {'DontYouEver', 3130}, 
+	 {'BebopJazz', 3738}, 
+	 {'DisturbingWildlife', 4286}, 
+	 {'ChineseHenan', 5457}, 
+	 {'Disco', 5769}} 
+train_count = 6435
+
+test_idx_table = { 
+	 {'Flying', 0}, 
+	 {'Grunge', 1167}, 
+	 {'FairerHopes', 1386}, 
+	 {'GoodbyeBolero', 2998}} 
+test_count = 5247
+
+
+rose3-tmux-Tab3
+th step1.lua --devid 2 --dataset osecond --nPlanes 128-128-256-256 --kSizes 255-127-127-95 --poolSizes 43-8-8-2 --stride 1-1-1-1 --lr 0.001 --mom 0.5 --batchsize 32
+
+rose3-tmux-Tab4
+th step1.lua --devid 1 --dataset osecond --nPlanes 64-64-128-128 --kSizes 255-127-127-95 --poolSizes 43-8-8-2 --stride 1-1-1-1 --lr 0.001 --mom 0.5 --batchsize 64
+
+**************************************************************************************************************************************
+

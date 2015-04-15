@@ -144,7 +144,7 @@ def raw_main_seg():
     print "==> done!"
 
 
-def raw_main_seg_stride(stride=1024):
+def raw_main_seg_stride(stride=4096):
     print "==> Segmented Raw (with stride) extracting"
     generator = read_mdb_all_data_generator()
     # Path
