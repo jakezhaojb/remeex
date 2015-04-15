@@ -45,7 +45,7 @@ dataset = opt.dataset
 params = {batchSize = opt.batchsize} -- TODO
 datasource = OneSecondDatasource(params)
 opt.inputSize = 22016
-opt.labelSize = 2
+opt.labelSize = 1
 
 -- get the model name
 local irrelevant = {['nepoches'] = true,
@@ -132,7 +132,8 @@ for iEpoch = 1, opt.nepoches do
       model:zeroGradParameters()
       local data = datasource:nextBatch(opt.batchsize, 'train')
       local x = data[1]:cuda()
-      local label = data[2][{ {}, {86,87} }]:cuda()
+      local label_tmp = data[2][{ {}, {86,87} }]:float()
+      local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda()
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
       L2_error = L2_error + loss
