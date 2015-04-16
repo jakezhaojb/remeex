@@ -74,7 +74,7 @@ def main():
    va_vd.values[va_vd.values != 0] = 1
    te_vd.values[te_vd.values != 0] = 1
    print "Model Building..."
-   print "\n Voice Detection..."
+   print "Voice Detection..."
    c_seq = [10**i for i in range(-3, 4)]
    accuracy = []
    for c in c_seq:
