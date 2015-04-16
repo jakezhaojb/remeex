@@ -1,6 +1,6 @@
 --[[
 Second feedforward Convnet
-Its labels is simply the middle melody annotation within wach frame.
+Its labels are reduced to voice detection deprived of pitch tracking.
 By Jake
 --]]
 
@@ -111,7 +111,7 @@ model:add(get_softmax_dropout(opt.labelSize, opt.nPlanes[#opt.nPlanes], opt.plan
 print(model)
 
 -- criterions
-criterion = nn.MSECriterion()
+criterion = nn.ClassNLLCriterion()
 criterion.sizeAverage = true
 
 -- cuda
@@ -125,7 +125,7 @@ local k = 1
 parameters, gradParameters = model:getParameters() 
 for iEpoch = 1, opt.nepoches do
    model:training()
-   local L2_error = 0
+   local NLL_loss, class_acc = 0, 0
    cutorch.synchronize()
    local tt = torch.Timer()
    for iIter = 1, opt.epochsize do
@@ -136,7 +136,12 @@ for iEpoch = 1, opt.nepoches do
       local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda()
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
-      L2_error = L2_error + loss
+
+      local _, imax = y:max(2)
+      imax = imax:squeeze(2)
+      class_acc = class_acc + imax:eq(label):sum() / opt.batchsize
+      NLL_loss = NLL_loss + loss
+
       local dre_do = criterion:backward(y, label)
       model:backward(x, dre_do)
       -- Momentum added
@@ -154,8 +159,8 @@ for iEpoch = 1, opt.nepoches do
    end
    cutorch.synchronize()
    print('Total time per iteration ' .. tt:time()['real'] / opt.epochsize)
-   L2_error = L2_error / opt.epochsize
-   print(iEpoch, 'L2_Error=' .. L2_error)
+   NLL_loss = NLL_loss / opt.epochsize
+   print(iEpoch, 'NLL_loss=' .. NLL_loss, 'train error=' .. 1-class_acc)
 
    -- check nan
    if iEpoch % 3 == 0 then
@@ -165,7 +170,26 @@ for iEpoch = 1, opt.nepoches do
    end
 
    if iEpoch % 10 == 0 then      
-      -- TODO evaluation code.
+      collectgarbage()
+      --[[
+      local i = 1
+      local test_class_acc = 0
+      local testBatchSize = opt.batchsize
+      while true do
+         local data = datasource:nextIteratedBatch(testBatchSize, 'test', i)
+         if data == nil then
+            break
+         end
+         local y = model:forward(data[1]:cuda())
+         local _, imax = y:max(2)
+         imax = imax:squeeze(2)
+         test_class_acc = test_class_acc + imax:eq(data[2]:double():cuda()):sum() / testBatchSize
+         i = i + 1
+      end
+      test_class_acc = test_class_acc / (i-1)
+      print('test error=' .. 1-test_class_acc)
+      --]]
+
       os.execute('mkdir -p /scratch/jz1672/remeex/models/' .. modelname)
       torch.save('/scratch/jz1672/remeex/models/' .. modelname .. '/epoch_' .. iEpoch .. '.t7b', {model=model, opt=opt}, 'binary') -- TODO: warnings
    end
