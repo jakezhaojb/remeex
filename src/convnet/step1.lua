@@ -167,7 +167,7 @@ for iEpoch = 1, opt.nepoches do
    print('Total time per iteration ' .. tt:time()['real'] / opt.epochsize)
    NLL_loss = NLL_loss / opt.epochsize
    class_acc = class_acc / opt.epochsize
-   print(iEpoch, 'NLL_loss=' .. NLL_loss, 'train error=' .. 1-class_acc)
+   print(iEpoch, 'NLL_loss=' .. NLL_loss, 'train error=' .. 1-2*class_acc)
 
    -- check nan
    if iEpoch % 3 == 0 then
@@ -178,27 +178,30 @@ for iEpoch = 1, opt.nepoches do
 
    if iEpoch % 10 == 0 then      
       collectgarbage()
-      --[[
       local i = 1
       local test_class_acc = 0
-      local testBatchSize = opt.batchsize
+      local testBatchSize = math.floor(opt.batchsize/4)
       while true do
          local data = datasource:nextIteratedBatch(testBatchSize, 'test', i)
          if data == nil then
             break
          end
+         local label_tmp = data[2][{ {}, {86,87} }]:float()
+         local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda():add(1)
          local y = model:forward(data[1]:cuda())
          local _, imax = y:max(2)
          imax = imax:squeeze(2)
-         test_class_acc = test_class_acc + imax:eq(data[2]:double():cuda()):sum() / testBatchSize
+         test_class_acc = test_class_acc + imax:eq(label):sum() / testBatchSize
          i = i + 1
       end
       test_class_acc = test_class_acc / (i-1)
       print('test error=' .. 1-test_class_acc)
-      --]]
+      errors[iEpoch] = {}
+      errors[iEpoch].train_error = 1 - 2*class_acc
+      errors[iEpoch].test_error = 1 - test_class_acc
 
       os.execute('mkdir -p /scratch/jz1672/remeex/models/' .. modelname)
-      torch.save('/scratch/jz1672/remeex/models/' .. modelname .. '/epoch_' .. iEpoch .. '.t7b', {model=model, opt=opt}, 'binary') -- TODO: warnings
+      torch.save('/scratch/jz1672/remeex/models/' .. modelname .. '/epoch_' .. iEpoch .. '.t7b', {model=model, opt=opt, errors=errors}, 'binary') -- TODO: warnings
    end
    collectgarbage()
 end
