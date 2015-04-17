@@ -103,13 +103,13 @@ def main():
 
    va_pred_y = pd.Series(opt_model_vd.predict(normalized_va_x), index = va_x.index)
    new_va_x = normalized_va_x[va_pred_y != 0]
-   new_va_y = normalized_va_y[va_pred_y != 0]
+   new_va_y = va_y[va_pred_y != 0]
    new_va_y = pd.Series(scaler_y.transform(new_va_y), index = new_va_y)
    
 
    te_pred_y = pd.Series(opt_model_vd.predict(normalized_te_x), index = te_x.index)
    new_te_x = normalized_te_x[te_pred_y != 0]
-   new_te_y = normalized_te_y[te_pred_y != 0]
+   new_te_y = te_y[te_pred_y != 0]
    new_te_y = pd.Series(scaler_y.transform(new_te_y), index = new_te_y)
    print "Frequency Estimation..."
    print " -- Continuous stage process --"
