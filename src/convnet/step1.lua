@@ -33,6 +33,7 @@ cmd:option('--epochsize', 3000, 'Number of samples per "epoch"')
 cmd:option('--lr', 0.02, 'Learning rate')
 cmd:option('--lrd', 5e-5, 'Learning rate decay')
 cmd:option('--mom', 0.9, 'momentum, eg. 0.9')
+cmd:option('--debug', false, 'debug')
 opt = cmd:parse(arg)
 
 torch.manualSeed(opt.seed)
@@ -45,13 +46,14 @@ dataset = opt.dataset
 params = {batchSize = opt.batchsize} -- TODO
 datasource = OneSecondDatasource(params)
 opt.inputSize = 22016
-opt.labelSize = 1
+opt.labelSize = 2
 
 -- get the model name
 local irrelevant = {['nepoches'] = true,
 		    ['devid'] = true,
 		    ['epochsize'] = true,
 		    ['numthreads'] = true,
+		    ['debug'] = true,
           ['lrd'] = true}
 local modelname = 'model1'
 for k, v in pairs(opt) do
@@ -121,6 +123,7 @@ criterion:cuda()
 
 -- train !
 local windows = {}
+local errors = {}
 local k = 1
 parameters, gradParameters = model:getParameters() 
 for iEpoch = 1, opt.nepoches do
@@ -133,7 +136,7 @@ for iEpoch = 1, opt.nepoches do
       local data = datasource:nextBatch(opt.batchsize, 'train')
       local x = data[1]:cuda()
       local label_tmp = data[2][{ {}, {86,87} }]:float()
-      local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda()
+      local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda():add(1)
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
 
@@ -155,11 +158,15 @@ for iEpoch = 1, opt.nepoches do
       end
       model:updateParameters(opt.lr / (1 + k * opt.lrd))
       k = k + 1
+      if opt.debug then
+         print(gradParameters:abs():mean())
+      end
       xlua.progress(iIter, opt.epochsize)
    end
    cutorch.synchronize()
    print('Total time per iteration ' .. tt:time()['real'] / opt.epochsize)
    NLL_loss = NLL_loss / opt.epochsize
+   class_acc = class_acc / opt.epochsize
    print(iEpoch, 'NLL_loss=' .. NLL_loss, 'train error=' .. 1-class_acc)
 
    -- check nan
