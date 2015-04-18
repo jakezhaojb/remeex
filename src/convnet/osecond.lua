@@ -108,7 +108,7 @@ end
 
 
 function OneSecondDatasource:nextIteratedBatch(batchSize, set, idx, trans_flag)
-   assert(batchSize == self.params.batchSize) --TODO
+   --assert(batchSize == self.params.batchSize) --TODO
    local data = torch.rand(batchSize, 1, 1, self.params.lenSample)  -- First 1 is nChannel, and second is flattened factor
    local label = torch.rand(batchSize, self.params.lenLabel)
    local this_set_num

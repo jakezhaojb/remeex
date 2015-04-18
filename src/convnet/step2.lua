@@ -1,6 +1,6 @@
 --[[
 Second feedforward Convnet
-Its labels are reduced to voice detection deprived of pitch tracking.
+Regression on top, based on step1
 By Jake
 --]]
 
@@ -113,7 +113,7 @@ model:add(get_softmax_dropout(opt.labelSize, opt.nPlanes[#opt.nPlanes], opt.plan
 print(model)
 
 -- criterions
-criterion = nn.ClassNLLCriterion()
+criterion = nn.MSECriterion()
 criterion.sizeAverage = true
 
 -- cuda
@@ -128,22 +128,17 @@ local k = 1
 parameters, gradParameters = model:getParameters() 
 for iEpoch = 1, opt.nepoches do
    model:training()
-   local NLL_loss, class_acc = 0, 0
+   local L2_loss = 0
    cutorch.synchronize()
    local tt = torch.Timer()
    for iIter = 1, opt.epochsize do
       model:zeroGradParameters()
       local data = datasource:nextBatch(opt.batchsize, 'train')
       local x = data[1]:cuda()
-      local label_tmp = data[2][{ {}, {86,87} }]:float()
-      local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda():add(1)
+      local label = data[2][{ {}, {86,87} }]:float():cuda()
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
-
-      local _, imax = y:max(2)
-      imax = imax:squeeze(2)
-      class_acc = class_acc + imax:eq(label):sum() / opt.batchsize
-      NLL_loss = NLL_loss + loss
+      L2_loss = L2_loss + loss
 
       local dre_do = criterion:backward(y, label)
       model:backward(x, dre_do)
@@ -165,9 +160,8 @@ for iEpoch = 1, opt.nepoches do
    end
    cutorch.synchronize()
    print('Total time per iteration ' .. tt:time()['real'] / opt.epochsize)
-   NLL_loss = NLL_loss / opt.epochsize
-   class_acc = class_acc / opt.epochsize
-   print(iEpoch, 'NLL_loss=' .. NLL_loss, 'train error=' .. 1-class_acc)
+   L2_loss = L2_loss / opt.epochsize
+   print(iEpoch, 'L2_loss=' .. L2_loss)
 
    -- check nan
    if iEpoch % 3 == 0 then
@@ -179,26 +173,24 @@ for iEpoch = 1, opt.nepoches do
    if iEpoch % 10 == 0 then      
       collectgarbage()
       local i = 1
-      local test_class_acc = 0
+      local test_L2_loss = 0
       local testBatchSize = math.floor(opt.batchsize/4)
       while true do
          local data = datasource:nextIteratedBatch(testBatchSize, 'test', i)
          if data == nil then
             break
          end
-         local label_tmp = data[2][{ {}, {86,87} }]:float()
-         local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda():add(1)
+         local label = data[2][{ {}, {86,87} }]:float():cuda()
          local y = model:forward(data[1]:cuda())
-         local _, imax = y:max(2)
-         imax = imax:squeeze(2)
-         test_class_acc = test_class_acc + imax:eq(label):sum() / testBatchSize
+         local loss = criterion:forward(y, label)
+         test_L2_loss = test_L2_loss + loss / testBatchSize
          i = i + 1
       end
-      test_class_acc = test_class_acc / (i-1)
-      print('test error=' .. 1-test_class_acc)
+      test_L2_loss = test_L2_loss / (i-1)
+      print('test L2_loss=' .. test_L2_loss)
       errors[iEpoch] = {}
-      errors[iEpoch].train_error = 1 - 2*class_acc
-      errors[iEpoch].test_error = 1 - test_class_acc
+      errors[iEpoch].train_L2_loss = L2_loss
+      errors[iEpoch].test_L2_loss = test_L2_loss
 
       os.execute('mkdir -p /scratch/jz1672/remeex/models/' .. modelname)
       torch.save('/scratch/jz1672/remeex/models/' .. modelname .. '/epoch_' .. iEpoch .. '.t7b', {model=model, opt=opt, errors=errors}, 'binary') -- TODO: warnings
