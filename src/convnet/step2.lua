@@ -1,6 +1,7 @@
 --[[
 Second feedforward Convnet
-Regression on top, based on step1
+> Regression on top, based on step1
+> Normalize the labels by diving them by 1000
 By Jake
 --]]
 
@@ -135,7 +136,7 @@ for iEpoch = 1, opt.nepoches do
       model:zeroGradParameters()
       local data = datasource:nextBatch(opt.batchsize, 'train')
       local x = data[1]:cuda()
-      local label = data[2][{ {}, {86,87} }]:float():cuda()
+      local label = data[2][{ {}, {86,87} }]:float():cuda():mul(1/1000)
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
       L2_loss = L2_loss + loss
@@ -180,7 +181,7 @@ for iEpoch = 1, opt.nepoches do
          if data == nil then
             break
          end
-         local label = data[2][{ {}, {86,87} }]:float():cuda()
+         local label = data[2][{ {}, {86,87} }]:float():cuda():mul(1/1000)
          local y = model:forward(data[1]:cuda())
          local loss = criterion:forward(y, label)
          test_L2_loss = test_L2_loss + loss / testBatchSize
