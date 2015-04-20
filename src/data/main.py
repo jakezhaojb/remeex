@@ -178,6 +178,35 @@ def raw_main_seg_stride(stride=4096):
     print '==> done.'
 
 
+def notes_stride(stride=4096):
+    print "==> Notes generated with stride"
+    generator = read_mdb_all_data_generator()
+    # Path
+    save_path_label = os.path.join(save_path, 'raw_seg_stride_' + str(stride) + '_note_label')
+    load_path_label = '/scratch/jz1672/remeex/features/melody_notes3'
+    assert os.path.exists(load_path_label) and os.path.isdir(load_path_label)
+    os.system('mkdir -p ' + save_path_label)
+    # for sample_rate = 22050
+    assert stride % 128 == 0
+    for g in generator:
+        try:
+            name, m, r = read_one_song(g)
+            m = np.loadtxt(os.path.join(load_path_label, name+'.csv'))
+        except:
+            continue
+        # for sample_rate = 22050
+        offset_label = 0
+        length = int(math.floor((len(r)-64-22016)/stride)) # +1
+        m_seg_stride = np.zeros((length, 172))
+        for i in range(length):
+            m_seg_stride[i, :] = m[offset_label: offset_label+172]
+            offset_label += stride / 128
+        if not os.path.exists(os.path.join(save_path_label, name+'.csv')):
+            np.savetxt(os.path.join(save_path_label, name+'.csv'), m_seg_stride, fmt='%.4f', delimiter=',')
+        print "==> %s done." % name
+    print '==> done.'
+
+
 def raw_main_whole():
     print "==> Whole Raw extracting"
     generator = read_mdb_all_data_generator()
@@ -199,4 +228,4 @@ def raw_main_whole():
 
 
 if __name__ == '__main__':
-    raw_main_seg_stride()
+    notes_stride()
