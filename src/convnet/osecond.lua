@@ -28,7 +28,7 @@ end
 function OneSecondDatasource:__init(params)
    parent.__init(self)
    if params.datadir == nil then
-      params.datadir = '/scratch/jakez/remeex/2015_4_04_first/'
+      params.datadir = '/scratch/jakez/remeex/2015_4_16_third/'
    end
    params.traindir = params.datadir .. 'train'
    params.testdir = params.datadir .. 'test'
