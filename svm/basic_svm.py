@@ -9,7 +9,7 @@ import random
 from sklearn import svm, preprocessing
 import os
 
-melody_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/melody/'
+melody_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/notes/'
 cqt_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/cqt/'
 mfcc_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/mfcc/'
 
@@ -97,27 +97,22 @@ def main():
    new_tr_x = normalized_tr_x[tr_pred_y != 0]
    new_tr_y = tr_y[tr_pred_y != 0]
    
-   scaler_y = preprocessing.StandardScaler().fit(new_tr_y)
-   new_tr_y = pd.Series(scaler_y.transform(new_tr_y), index = new_tr_y)
-
 
    va_pred_y = pd.Series(opt_model_vd.predict(normalized_va_x), index = va_x.index)
    new_va_x = normalized_va_x[va_pred_y != 0]
    new_va_y = va_y[va_pred_y != 0]
-   new_va_y = pd.Series(scaler_y.transform(new_va_y), index = new_va_y)
    
-
    te_pred_y = pd.Series(opt_model_vd.predict(normalized_te_x), index = te_x.index)
    new_te_x = normalized_te_x[te_pred_y != 0]
    new_te_y = te_y[te_pred_y != 0]
-   new_te_y = pd.Series(scaler_y.transform(new_te_y), index = new_te_y)
    print "Frequency Estimation..."
+   """
    print " -- Continuous stage process --"
    c_seq = [10**i for i in range(-3, 4)]
    score = []
    for c in c_seq:
-     clf = svm.LinearSVR(C = c, loss = 'squared_epsilon_insensitive', dual = False).fit(new_tr_x, new_tr_y)
-     score.append(clf.score(new_va_x, new_va_y))
+     reg = svm.LinearSVR(C = c, loss = 'squared_epsilon_insensitive', dual = False).fit(new_tr_x, new_tr_y)
+     score.append(reg.score(new_va_x, new_va_y))
 
    opt_c = c_seq[score.index(max(score))]
 
@@ -128,6 +123,20 @@ def main():
    opt_model = svm.LinearSVR(C = opt_c, loss = 'squared_epsilon_insensitive', dual = False).fit(new_tr_x, new_tr_y)
    print "testing score ==>  ", opt_model.score(new_te_x, new_te_y)
 
+   """
+   print " -- notes -- "
+   c_seq = [10 ** i for i in range(-3, 4)]
+   score = []
+   for c in c_seq:
+       multi_cls = svm.LinearSVC(C = c, penalty = 'l1', dual = False).fit(new_tr_x, new_tr_y)
+       score.append(multi_cls.score(new_va_x, new_va_y))
+   opt_c = c_seq[score.index(max(score))]
+
+   print "validation score: ", max(score)
+   print "c value: ", opt_c
+
+   opt_multi_cls = svm.LinearSVC(C = opt_c, penalty = 'l1', dual = False).fit(new_tr_x, new_tr_y)
+   print "testing score: ", opt_multi_cls(new_te_x, new_te_y)
 
 if __name__ == '__main__':
   main()
