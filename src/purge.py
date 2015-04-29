@@ -18,7 +18,7 @@ def sorted_ls(path):
 def purge(path):
     files = sorted_ls(path)
     files = filter(lambda x: re.match('epoch_\d{1,2}0.t7b', x), files)
-    files = files[:-3]  # Important!! save 3 latest models.
+    files = files[:-1]  # Important!! save 3 latest models.
     for file_elem in files:
         abs_file_elem = os.path.join(path, file_elem)
         os.system('rm ' + abs_file_elem)

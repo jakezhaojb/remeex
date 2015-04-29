@@ -1,13 +1,18 @@
 --[[
-One second data source
+Data file
 By Jake
 --]]
+
+-- TODO
+-- Write a thread pool...
+-- each thread read from a file and choose some vector meanwhile throw something away.
+-- Programming challenging....
 
 require 'datasource'
 require 'paths'
 local Threads = require 'threads'
 
-local OneSecondDatasource, parent = torch.class('OneSecondDatasource', 'Datasource')
+local Data, parent = torch.class('Data', 'Datasource')
 
 function sort_by_value(tab)
    function compare(a,b)

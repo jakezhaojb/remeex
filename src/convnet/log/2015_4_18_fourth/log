@@ -83,7 +83,7 @@ rose3-tmux-Tab6
 th step2.lua --devid 2 --dataset osecond --nPlanes 128-128-128-256-256 --kSizes 197-127-127-127-127 --poolSizes 43-8-4-2-2 --stride 1-1-1-1 --lr 0.01 --mom 0.5 --batchsize 32 --epochsize 500
 
 rose3-tmux-Tab7
-th step2.lua --devid 1 --dataset osecond --nPlanes 128-128-256-256 --kSizes 197-127-127-127 --poolSizes 43-8-8-2 --stride 1-1-1-1 --lr 0.01 --mom 0.5 --batchsize 32 --epochsize 500
+th step1.lua --devid 1 --dataset osecond --nPlanes 128-128-128-256-256 --kSizes 197-127-127-127-127 --poolSizes 43-8-4-2-2 --stride 1-1-1-1 --lr 0.01 --mom 0.5 --batchsize 32 --epochsize 500
 
 **************************************************************************************************************************************
 

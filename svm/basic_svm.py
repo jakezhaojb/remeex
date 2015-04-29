@@ -6,10 +6,10 @@
 import numpy as np
 import pandas as pd
 import random
-from sklearn import svm
+from sklearn import svm, preprocessing
 import os
 
-melody_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/melody/'
+melody_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/notes/'
 cqt_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/cqt/'
 mfcc_path = '/Users/ritali/desktop/ds1003/final_proj/dataset/mfcc/'
 
@@ -67,6 +67,12 @@ def main():
    print "Data Loaded"
 
    tr_x, tr_y, va_x, va_y, te_x, te_y = basic_model_data(mel, cqt, mfcc)
+   #normalize the data
+   scaler_x = preprocessing.StandardScaler().fit(tr_x)
+   normalized_tr_x = pd.DataFrame(scaler_x.transform(tr_x), index = tr_x.index)
+   normalized_va_x = pd.DataFrame(scaler_x.transform(va_x), index = va_x.index)
+   normalized_te_x = pd.DataFrame(scaler_x.transform(te_x), index = te_x.index)
+   #binary labels
    tr_vd = tr_y.copy(deep = True)
    va_vd = va_y.copy(deep = True)
    te_vd = te_y.copy(deep = True)
@@ -78,35 +84,35 @@ def main():
    c_seq = [10**i for i in range(-3, 4)]
    accuracy = []
    for c in c_seq:
-       clf = svm.LinearSVC(C = c, penalty = 'l1', dual = False).fit(tr_x, tr_vd)
-       accuracy.append(clf.score(va_x, va_vd))
+       clf = svm.LinearSVC(C = c, penalty = 'l1', dual = False).fit(normalized_tr_x, tr_vd)
+       accuracy.append(clf.score(normalized_va_x, va_vd))
 
    opt_c_vd = c_seq[accuracy.index(max(accuracy))]
    print "validation score ==> ", max(accuracy)
    print "c value for vocie detection: ", opt_c_vd
 
 
-   opt_model_vd = svm.LinearSVC(C = opt_c_vd, penalty = 'l1', dual = False).fit(tr_x, tr_vd)
-   tr_pred_y = pd.Series(opt_model_vd.predict(tr_x), index = tr_x.index)
-   new_tr_x = tr_x[tr_pred_y != 0]
+   opt_model_vd = svm.LinearSVC(C = opt_c_vd, penalty = 'l1', dual = False).fit(normalized_tr_x, tr_vd)
+   tr_pred_y = pd.Series(opt_model_vd.predict(normalized_tr_x), index = tr_x.index)
+   new_tr_x = normalized_tr_x[tr_pred_y != 0]
    new_tr_y = tr_y[tr_pred_y != 0]
+   
 
-   opt_model_vd = svm.LinearSVC(C = opt_c_vd, penalty = 'l1', dual = False).fit(va_x, va_vd)
-   va_pred_y = pd.Series(opt_model_vd.predict(va_x), index = va_x.index)
-   new_va_x = va_x[va_pred_y != 0]
+   va_pred_y = pd.Series(opt_model_vd.predict(normalized_va_x), index = va_x.index)
+   new_va_x = normalized_va_x[va_pred_y != 0]
    new_va_y = va_y[va_pred_y != 0]
-
-   opt_model_vd = svm.LinearSVC(C = opt_c_vd, penalty = 'l1', dual = False).fit(te_x, te_vd)
-   te_pred_y = pd.Series(opt_model_vd.predict(te_x), index = te_x.index)
-   new_te_x = te_x[te_pred_y != 0]
+   
+   te_pred_y = pd.Series(opt_model_vd.predict(normalized_te_x), index = te_x.index)
+   new_te_x = normalized_te_x[te_pred_y != 0]
    new_te_y = te_y[te_pred_y != 0]
-
-
+   print "Frequency Estimation..."
+   """
+   print " -- Continuous stage process --"
    c_seq = [10**i for i in range(-3, 4)]
    score = []
    for c in c_seq:
-     clf = svm.LinearSVR(C = c, loss = 'squared_epsilon_insensitive', dual = False).fit(new_tr_x, new_tr_y)
-     score.append(clf.score(new_va_x, new_va_y))
+     reg = svm.LinearSVR(C = c, loss = 'squared_epsilon_insensitive', dual = False).fit(new_tr_x, new_tr_y)
+     score.append(reg.score(new_va_x, new_va_y))
 
    opt_c = c_seq[score.index(max(score))]
 
@@ -116,6 +122,21 @@ def main():
 
    opt_model = svm.LinearSVR(C = opt_c, loss = 'squared_epsilon_insensitive', dual = False).fit(new_tr_x, new_tr_y)
    print "testing score ==>  ", opt_model.score(new_te_x, new_te_y)
+
+   """
+   print " -- notes -- "
+   c_seq = [10 ** i for i in range(-3, 4)]
+   score = []
+   for c in c_seq:
+       multi_cls = svm.LinearSVC(C = c, penalty = 'l1', dual = False).fit(new_tr_x, new_tr_y)
+       score.append(multi_cls.score(new_va_x, new_va_y))
+   opt_c = c_seq[score.index(max(score))]
+
+   print "validation score: ", max(score)
+   print "c value: ", opt_c
+
+   opt_multi_cls = svm.LinearSVC(C = opt_c, penalty = 'l1', dual = False).fit(new_tr_x, new_tr_y)
+   print "testing score: ", opt_multi_cls(new_te_x, new_te_y)
 
 if __name__ == '__main__':
   main()
