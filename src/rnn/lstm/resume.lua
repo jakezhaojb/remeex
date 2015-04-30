@@ -104,7 +104,7 @@ function doall()
 	local trainFile = opt.trainFile or '4_train.lua'
 
 	for key,val in pairs(opt.trainParams) do
-		batchSize = val.batchSize or 1
+		--batchSize = val.batchSize or 1
 		numEpochs = val.numEpochs or opt.maxEpochs
 		learningRate = val.learningRate or opt.learningRate
 		learningRateDecay = val.learningRateDecay or opt.learningRateDecay

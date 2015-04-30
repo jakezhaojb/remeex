@@ -1,14 +1,15 @@
 rootdir = '../results'
 experiment_name = 'experiment1_voicing'
 resume = false
-device = 3
+device = 1
+batchSize=100
 trainParams = {}
 trainParams[1] = {
-	numEpochs = 40,
-	batchSize = 100,
-	learningRate = 1e-3,
+	numEpochs = 100,
+	momentum = 0.95,
+	learningRate = 1,
 	learningRateDecay = 1e-7,
-	optimization = "SGD"
+	optimization = "ADADELTA"
 }
 maxNumSamples = 100000
 maxNumSamplesValidation = 100000
@@ -56,7 +57,11 @@ end
 
 params = {}
 
-params['LSTM_1l_200n_20kL'] = {['model']='LSTM',['dropout']=0.7,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=200}
+params['LSTM_1l_200n_20kL'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=200}
+
+
+
+
 opt = {}
 -- global:
 opt['seed'] = 1 -- fixed input seed for repeatable experiments
@@ -98,7 +103,8 @@ opt['t0'] = 1 -- start averaging at t0 (ASGD only), in nb of epochs
 opt['lambda'] = 1e-4 -- ASGD lambda
 opt['type'] = 'cuda' -- type: double | float | cuda
 opt['maxEpochs'] = maxEpochs -- max number of epochs to run
-opt['max_grad_norm'] = 10
+opt['max_grad_norm'] = 5
+opt['init_weight'] = 0.05
 -- test:
 opt['runValidation'] = true -- toggle validation
 opt['runTest'] = false -- toggle test

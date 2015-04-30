@@ -26,6 +26,8 @@ function processdata(CQT,kL,kR,binarylabel,MELODY)
 	local means = {}
 	local stds = {}
 	local lengths = {}
+	local songcount = 0
+	local songmap = {}
 	for song,cqt in pairs(CQT) do
 		if cqt:size()[1] == 84 then
 			CQT[song] = CQT[song]:transpose(1,2)
@@ -42,8 +44,10 @@ function processdata(CQT,kL,kR,binarylabel,MELODY)
 		if binarylabel == true then
 			MELODY[song] = torch.gt(MELODY[song],0):reshape(cqt:size()[1]):double()+1
 		end
+		songcount = songcount+1
+		table.insert(songmap,song)
 	end
-	return IDX,n,means,stds,lengths
+	return IDX,n,means,stds,lengths,songcount,songmap
 end
 
 function whichsong(i,IDX)
@@ -64,20 +68,45 @@ function grabsample(i,DATA)
 	return cqt,melody
 end
 
+function cqt2batch(CQT,MELODY)
+	local batchCQT = {}
+	local batchMELODY = {}
+	for song,cqt in pairs(CQT) do
+		local melody = MELODY[song]
+		local n = cqt:size(1)
+		local seqlength = math.floor(n/batchSize)
+		local segments_cqt = {}
+		local segments_melody = {}
+		for b=1,batchSize do
+			local from = seqlength*(b-1)+1
+			local to = seqlength*b
+			table.insert(segments_cqt,cqt[{{from,to},{}}]:reshape(1,seqlength,cqt:size(2)))
+			table.insert(segments_melody,melody[{{from,to}}]:reshape(1,seqlength))
+		end
+		batchCQT[song] = nn.JoinTable(1):forward(segments_cqt)
+		batchMELODY[song] = nn.JoinTable(1):forward(segments_melody)
+	end
+	return batchCQT,batchMELODY
+end
+
+
 
 function constructdata(opt,splitname)
 	local CQT = torch.load(paths.concat(opt.preprocessedData,splitname .. '_cqt.t7b'))
 	local MELODY = torch.load(paths.concat(opt.preprocessedData,splitname .. '_melody.t7b'))
-	local IDX,n,means,stds,lens = processdata(CQT,opt.kL,opt.kR,opt.binarylabel,MELODY)
+	local IDX,n,means,stds,lens,songcount,songmap = processdata(CQT,opt.kL,opt.kR,opt.binarylabel,MELODY)
+	local batchCQT,batchMELODY = cqt2batch(CQT,MELODY)
 	DATA = {
 		IDX=IDX,
-		CQT=CQT,
-		MELODY=MELODY,
+		CQT=batchCQT,
+		MELODY=batchMELODY,
 		kL=opt.kL,
 		kR=opt.kR,
 		means=means,
 		stds=stds,
 		lens=lens,
+		songcount=songcount,
+		songmap=songmap,
 		size=function() return n end
 	}
 	return DATA
@@ -163,23 +192,6 @@ if opt.runValidation then
 		print ">> Normalize VALIDATION"
 		normalize(VALIDATION,opt)
 	end
-	local shuffle = torch.randperm(VALIDATION:size())
-	local inputs = {}
-	local targets = {}
-	for j = 1,math.min(VALIDATION:size(),opt.maxNumSamplesValidation) do
-		i = shuffle[j]
-		local input, target = grabsample(i,VALIDATION)
-		table.insert(inputs, reshapeInputs(input,opt))
-		table.insert(targets, reshapeTargets(target))
-	end
-	-- convert tables back to tensors
-	inputs = nn.JoinTable(1):forward(inputs)
-	targets = nn.JoinTable(1):forward(targets)
-	validationData = {
-		data=inputs,
-		labels=targets,
-		size=function() return inputs:size()[1] end
-	}
 end
 
 if opt.runTest then

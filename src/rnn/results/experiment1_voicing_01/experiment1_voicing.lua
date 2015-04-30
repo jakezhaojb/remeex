@@ -1,11 +1,12 @@
 rootdir = '../results'
 experiment_name = 'experiment1_voicing'
-resume = false
-device = 3
+resume = true
+device = 4
+batchSize=100
 trainParams = {}
 trainParams[1] = {
-	numEpochs = 40,
-	batchSize = 100,
+	numEpochs = 100,
+	momentum = 0.95,
 	learningRate = 1e-3,
 	learningRateDecay = 1e-7,
 	optimization = "SGD"
@@ -56,7 +57,25 @@ end
 
 params = {}
 
-params['LSTM_1l_200n_20kL'] = {['model']='LSTM',['dropout']=0.7,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=200}
+--params['LSTM_1l_200n_20kL'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=200}
+
+--params['LSTM_1l_200n_20kL_SGD'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=200}
+
+--params['LSTM_1l_1000n_20kL_ADA'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=1000}
+
+--params['LSTM_1l_1000n_20kL_SGD'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=1,['rnn_size']=1000}
+
+
+--params['LSTM_2l_200n_20kL_ADA'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=2,['rnn_size']=200}
+
+--params['LSTM_3l_200n_20kL_ADA'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=3,['rnn_size']=200}
+
+--params['LSTM_2l_200n_20kL_SGD'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=2,['rnn_size']=200}
+
+params['LSTM_3l_200n_20kL_SGD'] = {['model']='LSTM',['dropout']=0,['kL']=20,['kR']=0,['layers']=3,['rnn_size']=200}
+
+
+
 opt = {}
 -- global:
 opt['seed'] = 1 -- fixed input seed for repeatable experiments
@@ -93,12 +112,13 @@ opt['batchSize'] = batchSize -- mini-batch size (1 =  pure stochastic)
 opt['initbatchSize'] = initbatchSize -- begin with minbatchsize, then switch to batchsize at t0
 opt['batchLearningRate'] = 1e-4 -- begin with minbatchsize, then switch to batchsize at t0
 opt['weightDecay'] = 0 -- weight decay (SGD only)
-opt['momentum'] = 0 -- momentum (SGD only)
+opt['momentum'] = 0.95 -- momentum (SGD only)
 opt['t0'] = 1 -- start averaging at t0 (ASGD only), in nb of epochs
 opt['lambda'] = 1e-4 -- ASGD lambda
 opt['type'] = 'cuda' -- type: double | float | cuda
 opt['maxEpochs'] = maxEpochs -- max number of epochs to run
-opt['max_grad_norm'] = 10
+opt['max_grad_norm'] = 5
+opt['init_weight'] = 0.05
 -- test:
 opt['runValidation'] = true -- toggle validation
 opt['runTest'] = false -- toggle test

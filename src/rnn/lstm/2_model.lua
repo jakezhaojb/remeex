@@ -8,6 +8,8 @@ require 'nngraph'
 ----------------------------------------------------------------------
 print '==> define parameters'
 
+model = {}
+
 -- 10-class problem
 noutputs = 2
 
@@ -85,7 +87,7 @@ function create_network()
   -- setup predictions as additional output to model
   local network           = nn.gModule({x, y, prev_s},
                                       {err, nn.Identity()(next_s), nn.Identity()(pred)})
-  -- module:getParameters():uniform(-params.init_weight, params.init_weight)
+  network:getParameters():uniform(-opt.init_weight, opt.init_weight)
   return transfer_data(network)
 end
 
@@ -129,10 +131,10 @@ end
 
 if opt.model == 'LSTM' then
 
-  model = {}
+
   print("Creating RNN LSTM network.")
   local core_network = create_network()
-  paramx, paramdx = core_network:getParameters()
+  parameters, gradParameters = core_network:getParameters()
   model.s = {}
   model.ds = {}
   model.start_s = {}
@@ -561,9 +563,6 @@ else
 
 end
 
-----------------------------------------------------------------------
-print '==> here is the model:'
-print(model)
 
 ----------------------------------------------------------------------
 ---- Visualization is quite easy, using gfx.image().

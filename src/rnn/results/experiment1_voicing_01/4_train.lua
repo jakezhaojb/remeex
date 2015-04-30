@@ -7,6 +7,7 @@ package.path = package.path .. ';/home/justin/torch_utilities/?.lua'
 require 'sopt'
 
 ----------------------------------------------------------------------
+
 ----------------------------------------------------------------------
 print '==> defining some tools'
 
@@ -194,7 +195,7 @@ function g_enable_dropout(node)
   end
 end
 function forwardpass(inputs,targets)
-  reset_s()
+  g_replace_table(model.s[0], model.start_s)
   for i = 1, opt.kL do
     local x = inputs[{{},i}]
     local y = targets[{{},i}]
@@ -213,9 +214,10 @@ function forwardpass(inputs,targets)
   model.err[opt.kL+1], s_last, pred = unpack(model.rnnt[1]:forward({x_t, y_t, s_t}))
   confusion:batchAdd(pred, y_t)
   g_replace_table(model.s[opt.kL+1],s_last)
+  g_replace_table(model.start_s,s_last)
   return model.err:mean()
 end
-function backwardpass(inputs,targets,gradParameters)
+function backwardpass(inputs,targets)
   reset_ds()
   local x_t = inputs[{{},opt.kL+1}]
   local y_t = targets[{{},opt.kL+1}]
@@ -236,7 +238,7 @@ function backwardpass(inputs,targets,gradParameters)
     g_replace_table(model.ds, tmp)
     cutorch.synchronize()
   end
-  model.norm_dw = parameters:norm()
+  model.norm_dw = gradParameters:norm()
   if model.norm_dw > opt.max_grad_norm then
     local shrink_factor = opt.max_grad_norm / model.norm_dw
     gradParameters:mul(shrink_factor)
@@ -247,9 +249,10 @@ end
 ----------------------------------------------------------------------
 print '==> defining training procedure'
 
-parameters,gradParameters = model.core_network:getParameters()
+--parameters,gradParameters = model.core_network:getParameters()
 function train()
-    collectgarbage()
+   confusion:zero()
+   collectgarbage()
 
    -- epoch tracker
    epoch = epoch or 1
@@ -263,6 +266,7 @@ function train()
 
    -- shuffle at each epoch
    shuffle = torch.randperm(numsamples)
+   songshuffle = torch.randperm(TRAIN.songcount)
 
    -- do one epoch
    print('------------------------------TRAINING--------------------------------------')
@@ -271,22 +275,28 @@ function train()
    print(optimState)
    print('==> doing epoch on training data:')
    print("==> online epoch # " .. epoch .. ' [batchSize = ' .. batchSize .. ']')
-   for t = 1,numsamples,batchSize do
+   for s = 1,TRAIN.songcount do
       -- disp progress
       collectgarbage()
-      xlua.progress(t, numsamples)
+      xlua.progress(s, TRAIN.songcount)
 
-      -- create mini batch
-      local inputs, targets = getminibatch(shuffle,t,math.min(t+batchSize-1,numsamples))
+      local song = TRAIN.songmap[songshuffle[s]]
+      local cqt = TRAIN.CQT[song]
+      local melody = TRAIN.MELODY[song]
+      reset_s()
+      segment_length = math.floor(cqt:size(2)/(opt.kL+1))
+      for t = 1,segment_length do
+        local from = (t-1)*(opt.kL+1)+1
+        local to = t*(opt.kL+1)
+        local inputs = cqt[{{},{from,to},{}}]
+        local targets = melody[{{},{from,to}}]
 
-      if opt.type == 'cuda' then 
-        inputs = inputs:cuda() 
-        targets = targets:cuda()
-      end
-
-      batchSize = inputs:size()[1]
-      -- create closure to evaluate f(X) and df/dX
-      local feval = function(x)
+        if opt.type == 'cuda' then 
+          inputs = inputs:cuda() 
+          targets = targets:cuda()
+        end
+        -- create closure to evaluate f(X) and df/dX
+        local feval = function(x)
                       -- get new parameters
                       if x ~= parameters then
                         parameters:copy(x)
@@ -296,16 +306,17 @@ function train()
                       gradParameters:zero()
 
                       f = forwardpass(inputs,targets)
-                      gradParameters = backwardpass(inputs,targets,gradParameters)
+                      gradParameters = backwardpass(inputs,targets)
                       
                       return f,gradParameters
                     end
 
       -- optimize on current mini-batch
-      if optimMethod == optim.asgd then
-         _,_,average = optimMethod(feval, parameters, optimState)
-      else
-         optimMethod(feval, parameters, optimState)
+        if optimMethod == optim.asgd then
+           _,_,average = optimMethod(feval, parameters, optimState)
+        else
+           optimMethod(feval, parameters, optimState)
+        end
       end
    end
 

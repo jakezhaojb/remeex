@@ -8,9 +8,6 @@ import time
 
 #-------------------------------------------------------------
 tag = 'experiment1_voicing_01'
-tag = 'experiment2_voicing_01'
-tag = 'experiment3_voicing_01'
-tag = 'experiment4_voicing_01'
 #-------------------------------------------------------------
 
 path = os.path.join(os.path.join('../results',tag),'results')

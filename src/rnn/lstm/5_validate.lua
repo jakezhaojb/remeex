@@ -10,6 +10,7 @@ bestaccuracy = bestaccuracy or  0
 
 -- validate function
 function validate()
+   confusion:zero()
    collectgarbage()
 
    -- local vars
@@ -25,32 +26,41 @@ function validate()
    g_disable_dropout(model.rnnL)
    g_disable_dropout(model.rnnt)
 
-
-   -- create tensor to store indicator for correct/incorrect predictions
-   correct = torch.Tensor(validationData:size()):zero() 
-
    -- validate over validate data
    print('------------------------------VALIDATING--------------------------------------')
    print('                                                 ' .. opt.tag)
    
-   mybatchsize = 100
-   print('Batchsize = ' .. mybatchsize)
-   for t = 1,validationData:size(),mybatchsize do
-      -- disp progress
-      xlua.progress(t, validationData:size())
+   --mybatchsize = 100
+   print('Batchsize = ' .. batchSize)
+   loss = 0
+   for s = 1,VALIDATION.songcount do
+      xlua.progress(s, VALIDATION.songcount)
+      local song = VALIDATION.songmap[s]
+      local cqt = VALIDATION.CQT[song]
+      local melody = VALIDATION.MELODY[song]
 
-      local inputs = validationData.data[{{t,math.min(t+mybatchsize-1,validationData:size())}}]
-      local targets = validationData.labels[{{t,math.min(t+mybatchsize-1,validationData:size())}}]
+      reset_s()
+      segment_length = math.floor(cqt:size(2)/(opt.kL+1))
+      for t = 1,segment_length do
+         local from = (t-1)*(opt.kL+1)+1
+         local to = t*(opt.kL+1)
+         local inputs = cqt[{{},{from,to},{}}]
+         local targets = melody[{{},{from,to}}]
 
-      inputs = inputs:cuda()
-      targets = targets:cuda()
-      forwardpass(inputs,targets)
-
+         if opt.type == 'cuda' then 
+           inputs = inputs:cuda() 
+           targets = targets:cuda()
+         end
+         inputs = inputs:cuda()
+         targets = targets:cuda()
+         loss = forwardpass(inputs,targets) + loss
+      end
    end
+   print("loss =",loss/VALIDATION.songcount)
 
    -- timing
    time = sys.clock() - time
-   time = time / validationData:size()
+   time = time / VALIDATION.songcount
    print("\n==> time to validate 1 sample = " .. (time*1000) .. 'ms')
 
    -- print confusion matrix
