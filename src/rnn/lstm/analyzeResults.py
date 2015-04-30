@@ -7,7 +7,15 @@ import time
 
 
 #-------------------------------------------------------------
-tag = 'experiment1_voicing_01'
+tag1 = 'experiment1_voicing_01'
+tag1a = 'experiment1_voicing_01a' # SGD pre-trained with ADA run
+tag1b = 'experiment1_voicing_01b' # max-norm = 1
+tag2 = 'experiment2_voicing_01' # re-write code
+tag3 = 'experiment3_voicing_01' # peepholes, normalization, larger sequence
+tag4 = 'experiment4_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
+tag5 = 'experiment5_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
+
+tag = tag5
 #-------------------------------------------------------------
 
 path = os.path.join(os.path.join('../results',tag),'results')
