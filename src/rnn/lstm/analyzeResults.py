@@ -14,8 +14,9 @@ tag2 = 'experiment2_voicing_01' # re-write code
 tag3 = 'experiment3_voicing_01' # peepholes, normalization, larger sequence
 tag4 = 'experiment4_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
 tag5 = 'experiment5_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
+tag6 = 'experiment6_voicing_01' # LSTM2, ReLU, peepholes
 
-tag = tag5
+tag = tag6
 #-------------------------------------------------------------
 
 path = os.path.join(os.path.join('../results',tag),'results')
@@ -86,7 +87,7 @@ exclusions=[]
 def pltresults(results,title,tag,exclusions=[],bestval=None,fromiter=0,legend=True):
     if len(results) > 0:
         fig,ax = plt.subplots()       
-        fig.set_size_inches(10,5)
+        fig.set_size_inches(10,10)
         for k,v in results:
             if k not in exclusions:
                 v = v.iloc[min(fromiter,len(v)):]
@@ -107,7 +108,7 @@ def pltresults(results,title,tag,exclusions=[],bestval=None,fromiter=0,legend=Tr
 def pltdelta(results,title,tag,exclusions=[],bestval=None,fromiter=0):
     if len(results) > 0:
         fig,ax = plt.subplots()       
-        fig.set_size_inches(10,5)
+        fig.set_size_inches(10,10)
         for k,v in results:
             if k not in exclusions:
                 minit = min(fromiter,len(v)-1)
