@@ -1,7 +1,7 @@
 --[[
 Second feedforward Convnet
-> Regression on top, based on step1
-> Normalize the labels by diving them by 1000
+Its labels are reduced to voice detection deprived of pitch tracking.
+Added stride
 By Jake
 --]]
 
@@ -27,6 +27,7 @@ cmd:option('--nPlanes', '256-512-512', 'Number of planes, eg. 16-32-16')
 cmd:option('--kSizes', '3-3-3', 'Kernel sizes, eg. 9-7-5')
 cmd:option('--stride', '1-1-1', 'stride, eg. 128-64-32')
 cmd:option('--poolSizes', '2-0-2', 'Pooling Sizes, eg. 2-0-2')
+cmd:option('--pad', '0-1-1-1-1', 'Pooling Sizes, eg. 2-0-2')
 -- training
 cmd:option('--batchsize', 64, 'Minibatch size')
 cmd:option('--nepoches', 1000, 'Number of "eopches"')
@@ -56,7 +57,7 @@ local irrelevant = {['nepoches'] = true,
 		    ['numthreads'] = true,
 		    ['debug'] = true,
           ['lrd'] = true}
-local modelname = 'model2'
+local modelname = 'model1'
 for k, v in pairs(opt) do
    if not irrelevant[k] then
       local v2 = ''
@@ -91,30 +92,44 @@ end
 opt.kSizes = convert_option(opt.kSizes)
 opt.stride = convert_option(opt.stride)
 opt.poolSizes = convert_option(opt.poolSizes)
+opt.pad = convert_option(opt.pad)
 opt.planeSizes = {opt.inputSize}
 -- pool
 for i = 1, #opt.poolSizes do
    local size = opt.planeSizes[i]
    if opt.poolSizes[i] ~= 0 then
-      opt.planeSizes[i+1] = math.floor(size/opt.poolSizes[i])
+      if opt.pad[i] ~= 0 then
+         opt.planeSizes[i+1] = math.floor(size/opt.poolSizes[i])
+      else
+         opt.planeSizes[i+1] = math.floor(math.floor(1 + (size-opt.kSizes[i]) / opt.stride[i]) /opt.poolSizes[i])
+      end
    else
       opt.planeSizes[i+1] = size
    end
 end
+
 -------------------------- MODEL --------------------------------------
 model = nn.Sequential()
 for i = 1, #opt.kSizes do
    if opt.poolSizes[i] ~= 0 then
-      model:add(get_conv_pool(opt.nPlanes[i], opt.nPlanes[i+1], opt.kSizes[i], opt.stride[i], opt.poolSizes[i]))
+      if opt.pad[i] ~= 0 then
+         model:add(get_conv_pool(opt.nPlanes[i], opt.nPlanes[i+1], opt.kSizes[i], opt.stride[i], opt.poolSizes[i]))
+      else
+         model:add(get_conv_pool_nopad(opt.nPlanes[i], opt.nPlanes[i+1], opt.kSizes[i], opt.stride[i], opt.poolSizes[i]))
+      end
    else
-      model:add(get_conv(opt.nPlanes[i], opt.nPlanes[i+1], opt.kSizes[i]), opt.stride[i])
+      if opt.pad[i] ~= 0 then
+         model:add(get_conv(opt.nPlanes[i], opt.nPlanes[i+1], opt.kSizes[i]), opt.stride[i])
+      else
+         model:add(get_conv_nopad(opt.nPlanes[i], opt.nPlanes[i+1], opt.kSizes[i]), opt.stride[i])
+      end
    end
 end
 model:add(get_softmax_dropout(opt.labelSize, opt.nPlanes[#opt.nPlanes], opt.planeSizes[#opt.planeSizes], 0.5, {512, 128}))
 print(model)
 
 -- criterions
-criterion = nn.MSECriterion()
+criterion = nn.ClassNLLCriterion()
 criterion.sizeAverage = true
 
 -- cuda
@@ -129,17 +144,22 @@ local k = 1
 parameters, gradParameters = model:getParameters() 
 for iEpoch = 1, opt.nepoches do
    model:training()
-   local L2_loss = 0
+   local NLL_loss, class_acc = 0, 0
    cutorch.synchronize()
    local tt = torch.Timer()
    for iIter = 1, opt.epochsize do
       model:zeroGradParameters()
       local data = datasource:nextBatch(opt.batchsize, 'train')
       local x = data[1]:cuda()
-      local label = data[2][{ {}, {86,87} }]:float():cuda():mul(1/1000)
+      local label_tmp = data[2][{ {}, {86,87} }]:float()
+      local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda():add(1)
       local y = model:forward(x)
       local loss = criterion:forward(y, label)
-      L2_loss = L2_loss + loss
+
+      local _, imax = y:max(2)
+      imax = imax:squeeze(2)
+      class_acc = class_acc + imax:eq(label):sum() / opt.batchsize
+      NLL_loss = NLL_loss + loss
 
       local dre_do = criterion:backward(y, label)
       model:backward(x, dre_do)
@@ -161,8 +181,9 @@ for iEpoch = 1, opt.nepoches do
    end
    cutorch.synchronize()
    print('Total time per iteration ' .. tt:time()['real'] / opt.epochsize)
-   L2_loss = L2_loss / opt.epochsize
-   print(iEpoch, 'L2_loss=' .. L2_loss)
+   NLL_loss = NLL_loss / opt.epochsize
+   class_acc = class_acc / opt.epochsize
+   print(iEpoch, 'NLL_loss=' .. NLL_loss, 'train error=' .. 1-class_acc)
 
    -- check nan
    if iEpoch % 3 == 0 then
@@ -174,24 +195,26 @@ for iEpoch = 1, opt.nepoches do
    if iEpoch % 10 == 0 then      
       collectgarbage()
       local i = 1
-      local test_L2_loss = 0
+      local test_class_acc = 0
       local testBatchSize = math.floor(opt.batchsize/4)
       while true do
          local data = datasource:nextIteratedBatch(testBatchSize, 'test', i)
          if data == nil then
             break
          end
-         local label = data[2][{ {}, {86,87} }]:float():cuda():mul(1/1000)
+         local label_tmp = data[2][{ {}, {86,87} }]:float()
+         local label = torch.cmul(label_tmp:select(2,1), label_tmp:select(2,2)):gt(0):float():cuda():add(1)
          local y = model:forward(data[1]:cuda())
-         local loss = criterion:forward(y, label)
-         test_L2_loss = test_L2_loss + loss / testBatchSize
+         local _, imax = y:max(2)
+         imax = imax:squeeze(2)
+         test_class_acc = test_class_acc + imax:eq(label):sum() / testBatchSize
          i = i + 1
       end
-      test_L2_loss = test_L2_loss / (i-1)
-      print('test L2_loss=' .. test_L2_loss)
+      test_class_acc = test_class_acc / (i-1)
+      print('test error=' .. 1-test_class_acc)
       errors[iEpoch] = {}
-      errors[iEpoch].train_L2_loss = L2_loss
-      errors[iEpoch].test_L2_loss = test_L2_loss
+      errors[iEpoch].train_error = 1 - 2*class_acc
+      errors[iEpoch].test_error = 1 - test_class_acc
 
       os.execute('mkdir -p /scratch/jz1672/remeex/models/' .. modelname)
       torch.save('/scratch/jz1672/remeex/models/' .. modelname .. '/epoch_' .. iEpoch .. '.t7b', {model=model, opt=opt, errors=errors}, 'binary') -- TODO: warnings
