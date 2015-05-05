@@ -5,8 +5,6 @@
 # Usages: dpark installation is recommended for acceleration.
 # ****************************************************************************
 
-# TODO How to check whether dpark is installed?
-# TODO How to control the number of RDD made, in makeRDD()?
 import librosa
 import numpy as np
 
@@ -161,6 +159,20 @@ def feature_cqt_whole(y, sr=22050):
     y = y[length_seg:]  # Important
     cqts = librosa.cqt(y, sr=sr, hop_length=length_seg)
     return cqts[:, :-1].T
+
+
+def feature_stft(y, sr=22050):
+    assert isinstance(y, np.ndarray)
+    assert len(y.shape) == 1
+    if sr == 22050:
+        length_seg = 128
+    elif sr == 44100:
+        length_seg = 256
+    else:
+        raise Exception('Abnormal sample rate.')
+    y = y[length_seg:]  # Important
+    stfts = librosa.stft(y, n_fft=2048, hop_length=length_seg)
+    return stfts[:, :-1].T
 
 
 def melody_to_midi(melody,fmin=None):
