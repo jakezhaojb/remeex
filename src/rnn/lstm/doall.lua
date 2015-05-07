@@ -6,6 +6,7 @@ sys.execute('mkdir -p ' .. results_folder)
 print(opt)
 
 function doall()
+	print('==> run doall')
 	-- save out params
 	params = io.open(paths.concat(results_folder,'params.txt'),'a')
 	params:write('parameter, value','\n')
@@ -89,7 +90,8 @@ function doall()
 	TEST = nil
 end
 
-
+doall()
+--[[
 status, errmsg = xpcall(doall, debug.traceback)
 
 print(errmsg)
@@ -102,3 +104,4 @@ pcall(function()
 	runlog:close()
 	end)
 
+]]

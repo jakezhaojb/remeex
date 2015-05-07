@@ -1,0 +1,19 @@
+false
+...n/torch/install/share/lua/5.1/nn/TemporalConvolution.lua:53: interrupted!
+stack traceback:
+	...n/torch/install/share/lua/5.1/nn/TemporalConvolution.lua:53: in function 'accGradParameters'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:325: in function 'neteval'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:336: in function 'accGradParameters'
+	/home/justin/torch/install/share/lua/5.1/nn/Module.lua:31: in function 'backward'
+	...meex/src/rnn/results/experiment11_voicing_01/4_train.lua:225: in function 'backwardpass'
+	...meex/src/rnn/results/experiment11_voicing_01/4_train.lua:318: in function 'opfunc'
+	/home/justin/torch/install/share/lua/5.1/optim/sgd.lua:43: in function 'optimMethod'
+	...meex/src/rnn/results/experiment11_voicing_01/4_train.lua:327: in function 'train'
+	resume.lua:121: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment11_melody.lua:183: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
