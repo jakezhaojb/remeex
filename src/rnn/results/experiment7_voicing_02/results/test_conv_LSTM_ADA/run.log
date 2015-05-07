@@ -1,0 +1,17 @@
+false
+...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:204: interrupted!
+stack traceback:
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:204: in function 'neteval'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:234: in function 'forward'
+	...emeex/src/rnn/results/experiment7_voicing_02/4_train.lua:205: in function 'forwardpass'
+	...emeex/src/rnn/results/experiment7_voicing_02/4_train.lua:306: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...emeex/src/rnn/results/experiment7_voicing_02/4_train.lua:316: in function 'train'
+	.../remeex/src/rnn/results/experiment7_voicing_02/doall.lua:68: in function <.../remeex/src/rnn/results/experiment7_voicing_02/doall.lua:8>
+	[C]: in function 'xpcall'
+	.../remeex/src/rnn/results/experiment7_voicing_02/doall.lua:93: in main chunk
+	[C]: in function 'dofile'
+	experiment7_voicing.lua:156: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

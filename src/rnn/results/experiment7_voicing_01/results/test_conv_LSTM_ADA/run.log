@@ -1,0 +1,17 @@
+false
+cannot open </scratch/jmj418/cqt/t7b/train_cqt.t7b> in mode r 
+stack traceback:
+	[C]: at 0x7fb86ca39990
+	[C]: in function 'DiskFile'
+	/home/justin/torch/install/share/lua/5.1/torch/File.lua:269: in function 'load'
+	...remeex/src/rnn/results/experiment7_voicing_01/1_data.lua:95: in function 'constructdata'
+	...remeex/src/rnn/results/experiment7_voicing_01/1_data.lua:128: in main chunk
+	[C]: in function 'dofile'
+	.../remeex/src/rnn/results/experiment7_voicing_01/doall.lua:45: in function <.../remeex/src/rnn/results/experiment7_voicing_01/doall.lua:8>
+	[C]: in function 'xpcall'
+	.../remeex/src/rnn/results/experiment7_voicing_01/doall.lua:93: in main chunk
+	[C]: in function 'dofile'
+	experiment7_voicing.lua:156: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

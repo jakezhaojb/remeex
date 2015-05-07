@@ -15,8 +15,11 @@ tag3 = 'experiment3_voicing_01' # peepholes, normalization, larger sequence
 tag4 = 'experiment4_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
 tag5 = 'experiment5_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
 tag6 = 'experiment6_voicing_01' # LSTM2, ReLU, peepholes
+tag7 = 'experiment7_voicing_03' # 
+tag8 = 'experiment8_voicing_01' # LSTM2, melody
+tag9 = 'experiment9_voicing_01' # convLSTM,melody
 
-tag = tag6
+tag = tag7
 #-------------------------------------------------------------
 
 path = os.path.join(os.path.join('../results',tag),'results')
