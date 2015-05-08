@@ -17,11 +17,12 @@ def load_stft(file_name):
     a = open(file_name).readlines()
     b = map(lambda x: x.replace('(','').replace(')','').split(','), a)
     d = np.array(map(lambda y: list(map(lambda x: abs(complex(x)), y)), np.array(b)))
-    e = d.argmax(1) * 22050 / 1024
+    e = d.argmax(1) * 22050 / 1024.0
     return e
 
 
 def compare(arr1, arr2):
+    arr1 = arr1[:-1]
     assert len(arr1) == len(arr2)
     return len(arr1), np.sum(arr1 == arr2)
 

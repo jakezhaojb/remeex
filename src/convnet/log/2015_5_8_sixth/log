@@ -1,0 +1,89 @@
+**************************************************************************************************************************************
+--- Middle two regression
+
+test_idx_table = { 
+	 {'ChineseChaoZhou', 0}, 
+	 {'NightOwl', 299}, 
+	 {'PigsFoot', 1216}, 
+	 {'LarkOnTheStrandDrummondCastle', 3186}, 
+	 {'Pilot', 4409}, 
+	 {'Punk', 6996}, 
+	 {'ModalJazz', 7145}, 
+	 {'Lontano', 7698}, 
+	 {'MitadDelMundo', 9296}, 
+	 {'ChineseJiangNan', 10269}, 
+	 {'Mignon', 10572}, 
+	 {'ChineseDrama', 11981}, 
+	 {'Pachelbel', 12319}, 
+	 {'Phantom', 13943}, 
+	 {'LenfantProdigue', 14728}, 
+	 {'LesFleursDuMal', 15925}, 
+	 {'Lolita', 17554}, 
+	 {'LatinJazz', 18927}} 
+test_count = 19282
+
+train_idx_table = { 
+	 {'HeavyLove', 0}, 
+	 {'FreeJazz', 1582}, 
+	 {'DiesBildnis', 2138}, 
+	 {'GoodbyeBolero', 3366}, 
+	 {'DieForUs', 5615}, 
+	 {'DontYouEver', 7109}, 
+	 {'HighHorse', 7717}, 
+	 {'Hendrix', 9625}, 
+	 {'Again', 9726}, 
+	 {'FunkJazz', 10804}, 
+	 {'DieBekherte', 11064}, 
+	 {'ImpressionsOfSaturn', 12075}, 
+	 {'Gospel', 14048}, 
+	 {'DontHearAThing', 14450}, 
+	 {'FairerHopes', 15368}, 
+	 {'IntheAtticBedroom', 16980}, 
+	 {'Country1', 18222}, 
+	 {'Country2', 18403}, 
+	 {'ElzicsFarewell', 18491}, 
+	 {'Bounty', 19428}, 
+	 {'ChineseYaoZu', 20980}, 
+	 {'AirTraffic', 21298}, 
+	 {'Disco', 22226}, 
+	 {'BorrowedHeart', 22892}, 
+	 {'Britpop', 24187}, 
+	 {'Curfews', 24379}, 
+	 {'Hopscotch', 25855}, 
+	 {'Emergency', 27432}, 
+	 {'Grunge', 28325}, 
+	 {'Beatles', 28544}, 
+	 {'Coldwar', 28734}, 
+	 {'GirlOnABridge', 29643}, 
+	 {'Definition', 30337}, 
+	 {'Child', 31597}, 
+	 {'Fire', 32610}, 
+	 {'Flying', 33751}, 
+	 {'ColliersDaughter', 34918}, 
+	 {'ImComingHome', 35938}, 
+	 {'Erstarrung', 36899}, 
+	 {'BesterJungling', 37829}, 
+	 {'BrokenPledgeChicagoReel', 38761}, 
+	 {'ChineseHenan', 39726}, 
+	 {'InTheHalloftheMountainKing', 40038}, 
+	 {'BebopJazz', 40126}, 
+	 {'ChineseXinJing', 40674}, 
+	 {'AllGoodThings', 41020}, 
+	 {'GriegTrolltog', 42136}, 
+	 {'BoothShotLincoln', 42499}, 
+	 {'FusionJazz', 43869}, 
+	 {'Beethoven', 44461}, 
+	 {'Boys', 44602}, 
+	 {'ExcessiveResistancetoChange', 45422}, 
+	 {'DisturbingWildlife', 46763}, 
+	 {'CoolJazz', 47934}} 
+train_count = 48475
+
+rose3-tmux-Tab10
+th step3.lua --devid 2 --dataset osecond --nPlanes 1024-256-256-256-256 --kSizes 515-127-127-127-127 --poolSizes 16-14-8-2-2 --stride 3-1-1-1-1 --lr 0.01 --mom 0.5 --batchsize 4 --epochsize 500 --pad 0-1-1-1-1
+
+rose3-tmux-Tab11
+th step3.lua --devid 1 --dataset osecond --nPlanes 512-256-256-256-256 --kSizes 515-127-63-63-63 --poolSizes 16-14-8-2-2 --stride 3-1-1-1-1 --lr 0.01 --mom 0.5 --batchsize 8 --epochsize 500 --pad 0-1-1-1-1
+
+**************************************************************************************************************************************
+
