@@ -63,7 +63,7 @@ Many approaches to melody extraction have been attempted [1], including pure sig
 
 \subsection{Review of Existing Work}
 
-Melodia...
+MedleyDB was developed relatively recently, and so not much work has been published on it.  The only melody extraction result on MedleyDB that we are aware of is that of Melodia, which has continued to set the state-of-the-art on the MIREX09 dataset from 2011-2014.  MIREX09 is popular dataset for testing melody extraction algorithms, and so we do a quick review of those results here.
 
 \section{Problem Definition}
 As a machine learning task, melody extraction has two components:
@@ -90,6 +90,8 @@ Second, it is likely that melody is context dependent.  For example, it might ac
 \section{Data} \label{sec:data}
 
 MedleyDB [2] consists of 122 multitracks, including stereo quality mixed audio, melody annotations, and stems \footnote{In a recording session, there is a separate microphone for each instrument (or sets of instruments), and thus there are separate recordings.  For example, the singer is recorded separately from the guitar.  A stem is one of these separate recordings.  When added together the mix will sound like a complete song.}.  The multitracks include songs from a variety of genres, including Singer/Songwriter, Classical, Rock, World/Folk, Fusion, Jazz, Pop, Musical Theatre, and Rap.
+
+Only 108 out of the 122 songs contain melody annotations, and thus these are the songs we use for our experiments.
 
 The audio files are provided in WAV format (44.1 kHz, 16 bit).  In other words, each audio file contains 44,100 digital audio samples per second.  Each audio file is accompanied by a single source melody annotation, provided in csv format.  A melody label is a number that represents the predominant frequency over a pre-defined window of time.  There are 256 melody labels per second.  Each melody label overlaps roughly 172 audio samples.
 
@@ -130,7 +132,7 @@ We split our training, validation, and testing sets on songs.  In other words, n
 
 Given the limited number of songs in our dataset, a possible approach would be to use cross-validation.  However, running cross-validation on deep-learning architectures would be computationally expensive and not practical.  We also wanted to maintain the same training, validation, and test splits for all our machine learning approaches.  Thus we elected not to use cross-vadliation.
 
-Our splits consisted of 25 songs for the test set, 25 songs for validation, and the remaining 72 songs for training.  These were fixed at the beginning of the project.
+As mentioned previously, we use only the 108 songs that contain melody annotations.  Our splits consisted of 27 songs for the test set, 27 songs for validation, and the remaining 54 songs for training.  These were fixed at the beginning of the project.
 
 \section{Feature Extraction}
 Since Music Information Retrieval (MIR) is closely related to the Speech Recognition (SR) community, it naturally absorbs feature descriptors and 
