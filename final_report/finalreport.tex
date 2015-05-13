@@ -132,8 +132,7 @@ Given the limited number of songs in our dataset, a possible approach would be t
 
 Our splits consisted of 25 songs for the test set, 25 songs for validation, and the remaining 72 songs for training.  These were fixed at the beginning of the project.
 
-\section{Approaches}
-\subsection{Feature Extraction}
+\section{Feature Extraction}
 Since Music Information Retrieval (MIR) is closely related to the Speech Recognition (SR) community, it naturally absorbs feature descriptors and 
 machine learning techniques from the Speech community, which has a relatively larger amount of literature.
 We briefly studied the marriage between the communities and settled a few methods that might be appropriate. 
@@ -153,25 +152,7 @@ The weights of the “words” in the dictionary are the new representation of t
 
 In general, Fourier transform intuitively seems to be natural to the problem of melody extraction.  The human auditory system naturally perform a fourier analysis in the conversion of sound to neural impulses.  In addition, the fourier transform generates a time series of frequency vectors, and the melody traverses across these vectors through time.
 
-
-\subsection{Modeling}
-We have elected to use hidden markov models (HMM) with gaussian mixture models (GMM), support vector machines (SVM), and deep learning as an initial starting point for modeling melody.  We describe these approaches below.
-\begin{itemize}
-\item \textbf{SVM}. Using SVM for melody extraction has been applied before to build classifiers. One of the advantages of SVM is that it requires no prior knowledge of how they are presented in the examined features. We want to examine the problem by training classification for voice detection stage and regression for raw pitch estimation. In this project, we would love to explore linear and RBF kernels, since linear model will have lower computational costs, and more tractable and with $l_{1}$ and $l_{2}$ penalty options thus we can adjust the model accordingly based on the features' sparsity. However, RBF kernel is the most popular kernel being used when train a SVM model and it will fit the model more flexibly, but at higher computational cost. It depends on the feature dimensions from the data since if it is low dimension which might not be linearly separable in this case. We want to optimize the problem first in primal space. If it is doable, we will proceed to dual space.  
-\item \textbf{HMM-GMM}. HMM seems like a natural fit for melody extraction: given a previous state (or set of previous states) and some observed features that describe the audio signal around the current melody frame, what is the most likely melody state?  HMM has been extremely successful in SR and has been successful in melody extraction [6].  Using HMM, our hidden states would be musical notes corresponding to melody frequencies.  As for the observation states, in traditional SR, gaussian mixture models are often used to encode MFCC output into a set of observation states, and each frame is tagged to exactly one of these states (the one corresponding to the highest posterior probability).  We will use this framework as an initial starting point, because it is relatively straightforward. Down the road we may try to incorporate CNN output (see below) into the observation states and other methods for defining the hidden state-observation transition matrix.
-\end{itemize}
-
-
-Inspired by the recent success of deep learning in SR, an alternative approach is to apply end-to-end learning techniques that derive useful information from the raw audio waves [J4]. 
-Convolutional Neural Network (CNN) and Recurrent Neural Network (RNN) are two predominant choices modeling sequential data. Both of them can be applied to the raw audio input or Fourier transformed features and trained by gradient based method using back propagation.  Thus, we also plan to experiment with CNN.  Time-willing, we will also experiment with RNN.  We expect that either the CNN or RNN will produce the best results.
-\begin{itemize}
-\item \textbf{CNN}. CNN operates between Temporal Convolution, Temporal Pooling and Non-linear activations. On top of the network framework, a classifier or regressor would be placed to finish the job of classifying or regressing.
-\item \textbf{RNN}. Differing from feedforward neural network, RNN uses the internal memory to process signals in such a way that RNN output from previous time steps are used as inputs for subsequent time steps.
-\end{itemize}
-
-We will also look for ways to incorporate CNN and/or RNN features into SVM and HMM-GMM models.
-
-\subsection{Baseline Models}
+\section{Baseline Models}
 
 It is important to have a baseline performance to measure the performance of a model against.  We will use the following baseline models:
 
@@ -182,39 +163,6 @@ It is important to have a baseline performance to measure the performance of a m
 \subitem Voicing Detection:  Predict the majority class (on/off)
 \subitem Pitch Tracking: Predict the majority class
 \end{itemize}
-
-\subsection{Data Augmentation}
-
-In recent years, computer vision has seen a huge advancement in the predictive power of machine learning algorithms, primarily via deep learning approaches.  As part of that advancement, researchers have found that data augmentations can provide an added boost to algorithm performance.
-
-The idea behind data augmentation can be explained using the following example.  The essence of a song, and corresponding melody, is the same regardless of what volume it is.  A machine learning algorithm trained on multiple versions of the same song (i.e. at different volumes) will likely show better performance than an algorithm trained on only one version.
-
-Thus, we plan to do the following data augmentations:
-
-\begin{itemize}
-\item Adjust volume of songs
-\item Add/remove non-melodic stems from songs
-\item Add white noise to songs
-\end{itemize}
-
-This list may grow as we discover more data augmentations.
-
-
-
-
-
-\section{Anticipated Timeline}
-
-\begin{itemize}
-\item April 3 - Generate baseline models, feature generation complete, begin building and running models models
-\item April 12 - Successful runs of SVM, HMM, and CNN complete, begin hyperparameter tuning and grid search
-\item April 19 - Continue hyperparameter tuning and grid search.
-\item April 26 - SVM, HMM, CNN complete, begin analyzing results
-\item May 3 - Analysis of model results complete.  Using analysis, determine new modeling directions.  Begin writing report.
-\item May 10 - 2nd round of models complete and finalize report
-\item May 14 - Final report complete.
-\end{itemize}
-
 
 
 
