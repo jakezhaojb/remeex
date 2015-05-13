@@ -47,7 +47,7 @@ New York University\\
 
 \section{Introduction}
 
-In the project, we aim to build and evaluate machine learning models for the task of extracting melody from digital music files.  Over the past decade, melody extraction has been an active research area in the music information retrieval research community [1].  It has many applications, including query by humming (e.g. hum a song into your phone and an app tells you what song it is), cover song identification, genre classification, mood classification, etc.
+In the project, we aim to build and evaluate machine learning models for the task of extracting melody from digital music files.  Melody extraction is an active research area in the music information retrieval research community [1].  It has many applications, such as query by humming (e.g. hum a song into your phone and an app tells you what song it is), cover song identification, genre classification, and mood classification.
 
 Generally speaking, melody is the predominant pitch in a piece of music that captures the essence of a song.  As a motivating example, the melody is the tune one might hum when asked "what does the song sound like?"  Unfortunately, there does not seem to be a precise definition of melody.  As a machine learning task, we require some sort of precise definition, and for this project we adopt the definition described by [1]:
 
@@ -57,7 +57,7 @@ Melody is the fundamental frequency \footnote{Any audio signal can be represente
 
 While this definition is still open to interpretation, it can be used by human experts to generate the melody of a piece of music.  Note that we constrain the definition of melody extraction to a single source, meaning that the melody is only coming from a single lead voice or instrument.  The motivation for this simplification is that it can make the task of melody extraction easier.
 
-Melody extraction is a supervised learning task and requires a set of labeled data.  For this project, we used MedleyDB [2], a dataset of annotated, royalty-free multitrack recordings that was curated primarily to support research on melody extraction.
+Melody extraction is a supervised learning task and requires a set of labeled data.  For this project, we used MedleyDB [2], a dataset of annotated, royalty-free multitrack recordings.
 
 Many approaches to melody extraction have been attempted [1], including pure signal processing [3], dynamic programming [4], support vector machines [5], and hidden markov models [6] [8].  In this project, we utilized SVM, HMM, and deep neural network architectures.  Our best performing model was a recurrent neural network (RNN) with long short-term memory (LSTM) cells.
 
@@ -75,12 +75,17 @@ As a machine learning task, melody extraction has two components:
 
 The first task derives from the fact that sometimes there is no melody.  The tasks can be approached in separate algorithms or in the same algorithm.
 
-\subsection{Melody Pitch Tracking}
 Melody pitch tracking is the task of identifying the predominant frequency during a \textit{frame} (a small time interval).  We are effectively constrained to the frame size used in the MedleyDB melody annotations, and thus our frames are roughly 4ms.
 
 An important modeling question is whether to predict melody labels through regression or classification.  Regression can seem to be a natural fit, because frequency lies on a continuous spectrum.  However, human music tends to be composed on a discrete scale, i.e. musical notes.  Predictions could be refined by "rounding" the predictions to the nearest note.
 
-As a classification task, we can model all possible notes, such as the 88 keys found on a standard piano.  Typically, most songs may not even cover this entire spectrum, and so we can reduce the size of our classification to only those notes present in the data.
+As a classification task, we can model all possible notes, such as the 88 keys found on a standard piano.  Typically, most songs may not even cover this entire spectrum, and so we can reduce the scope of our classification to only those notes present in the data.
+
+\subsection{Melody Specific Challenges}
+
+There are two major difficulties with melody.  First, the melody is often mixed in with other musical signals.  For example, the melody might be produced by the singer, but there is also a guitar, a bass guitar, and drum beats playing at the same time.  
+
+Second, it is likely that melody is context dependent.  For example, it might actually be impossible for any algorithm to detect discernable melody patterns in a 4 ms window without any additional information.  Intuitively, it would seem that one must listen to the music surrounding that specific time frame in order to determine the melody.  Thus, the features of a specific sample instance should include audio signal information from surrounding time frames.  The number of such features could be potentially large, possibly huge.  How large of a time window is needed to identify a melody?  An additional related question is whether or not future information is required to predict melodies.
 
 \section{Data} \label{sec:data}
 
@@ -90,17 +95,17 @@ The audio files are provided in WAV format (44.1 kHz, 16 bit).  In other words, 
 
 One of the benefits of MedleyDB is that it was carefully curated to provide a complete set of melody annotations combined with high-quality songs.  Thus, we are operating under the assumption that we do not have missing data and that the melody annotations perfectly overlap with the audio samples.  Unfortunately, it would not be practically feasible to check this assumption thoroughly.
 
-One of the questions that we began the project with was whether or not we have enough data.  On the one hand, 122 songs does not sound large.  On the other hand, 256 melody labels per second, at an average of 3 minutes per song, corresponds to over 5 million training samples.  So the question is whether or not there is enough variety in this dataset to generalize well to other datasets or even between the training, validation, and test splits.
+A question we explore throughout the project is whether or not we have enough data.  On the one hand, 122 songs does not sound large.  On the other hand, 256 melody labels per second, at an average of 3 minutes per song, corresponds to over 5 million training samples.  So the question is whether or not there is enough variety in this dataset to generalize well to other datasets or even between the training, validation, and test splits.
 
 \subsection{Data Pre-processing}
 
 MedleyDB comes with an accompanying API for working with its data files, and so very little data pre-processing was required.  The majority of data processing work was in the form of feature generation, such as CQT transforms, and generating training, validation, and test splits.
 
 \section{Evaluation Metrics For Model Performance}
-Given that melody extraction consists of two tasks, it is natural to evaluate each task separately and together, thus yielding three different evaluation metrics.  Typically, researchers use accuracy to evaluate performance \footnote{http://www.music-ir.org/mirex/wiki/2014:Audio\_Melody\_Extraction}, and so we will do the same here by following the MIREX accuracy definitions:
+Given that melody extraction consists of two tasks, it is natural to evaluate each task separately and together, thus yielding three different evaluation metrics.  Typically, researchers use accuracy to evaluate performance \footnote{http://www.music-ir.org/mirex/wiki/2014:Audio\_Melody\_Extraction}, and so we will do the same here by following the MIREX accuracy definitions, with one small modification:
 
 \begin{enumerate}
-\item Voicing detection accuracy - TPR, i.e. probability that a frame that is actually voiced is predicted to be voiced,
+\item Voicing detection TPR, i.e. probability that a frame that is actually voiced is predicted to be voiced,
 \item Raw pitch accuracy - probability of a correct pitch value (within 1/4 tone\footnote{a tone is a step between two keys on a piano; e.g. G is a tone higher than F.}) given that the frame is voiced,
 \item Overall accuracy = $\frac{TPC+TN}{TO}$
 
@@ -115,6 +120,17 @@ TO = total number of predictions
 
 \end{enumerate}
 
+Our modification has to do with voicing detection.  Throughout the project, we take a general strategy of first implementing our methods to the voicing detection task, and then to overall melody extraction.  The reasoning is that we presumed the former to be a simpler task than pitch tracking. For the voicing detection tasks, TPR would not be enough to accurately represent the ability of a machine learning algorithm to predict the presence of melody.  Thus, we instead use voicing detection accuracy, which is the total number of correct predictions divided by the total number of predictions.
+
+For overall melody extraction, we look at a combination of raw pitch accuracy and overall accuracy, as this seems to be the common approach in the MIR community.
+
+\section{Training/Validation/Testing}
+
+We split our training, validation, and testing sets on songs.  In other words, no songs will overlap between sets.  This intuitively makes sense.  In a real world application, a melody extraction procedure would be applied to songs it had never seen before. 
+
+Given the limited number of songs in our dataset, a possible approach would be to use cross-validation.  However, running cross-validation on deep-learning architectures would be computationally expensive and not practical.  We also wanted to maintain the same training, validation, and test splits for all our machine learning approaches.  Thus we elected not to use cross-vadliation.
+
+Our splits consisted of 25 songs for the test set, 25 songs for validation, and the remaining 72 songs for training.  These were fixed at the beginning of the project.
 
 \section{Approaches}
 \subsection{Feature Extraction}
@@ -137,13 +153,6 @@ The weights of the “words” in the dictionary are the new representation of t
 
 In general, Fourier transform intuitively seems to be natural to the problem of melody extraction.  The human auditory system naturally perform a fourier analysis in the conversion of sound to neural impulses.  In addition, the fourier transform generates a time series of frequency vectors, and the melody traverses across these vectors through time.
 
-\subsection{Melody Specific Challenges}
-
-There are two major difficulties with melody.  First, the melody is often mixed in with other musical signals.  For example, the melody might be produced by the singer, but there is also a guitar, a bass guitar, and drum beats playing at the same time.  We are not yet entirely sure how to tackle this challenge.  It will be a topic that we continue to discuss and focus on throughout the project.
-
-Second, melody is somewhat context dependent.  For example, it might actually be impossible for any algorithm to detect discernable melody patterns in a 4 ms window.  Intuitively, it seems that one must listen to the music surrounding that specific time frame in order to determine the melody.  Thus, the features of a specific sample instance should include audio signal information from surrounding time frames.  The number of such features could be potentially large, possibly huge.  How large of a time window is needed to identify a melody?  If the answer is one tenth of a second, then we would have 4410 audio samples per melody label.  If this is converted to an MFCC vector, then we could have roughly 170,000 features per melody label.  An additional related question is whether or not future information is required to predict melodies.
-
-Looking at our data we have deduced that a window of approximately 12 ms is sufficient to capture at least two cycles of the fundamental frequency of the music.  Thus, we initially begin with this size of a window in order to train baseline algorithms for proof of concept.  Once that is complete, we can start increasing the size of the windows.
 
 \subsection{Modeling}
 We have elected to use hidden markov models (HMM) with gaussian mixture models (GMM), support vector machines (SVM), and deep learning as an initial starting point for modeling melody.  We describe these approaches below.
@@ -190,11 +199,7 @@ Thus, we plan to do the following data augmentations:
 
 This list may grow as we discover more data augmentations.
 
-\subsection{Training/Validation/Testing}
 
-We will be splitting our training, validation, and testing sets on songs.  In other words, no songs will overlap between sets.  This intuitively makes sense.  In a real world application, a melody extraction procedure would be applied to songs it had never seen before. 
-
-Given the limited number of songs in our dataset, we may use cross-validation instead of separate training and validation sets.  Initially, we will simply use 25 songs for the test set, 25 songs for validation, and the remaining 72 songs for training.
 
 
 
