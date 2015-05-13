@@ -1,0 +1,15 @@
+false
+...emeex/src/rnn/results/experiment3_voicing_01/4_train.lua:217: interrupted!
+stack traceback:
+	...emeex/src/rnn/results/experiment3_voicing_01/4_train.lua:217: in function 'backwardpass'
+	...emeex/src/rnn/results/experiment3_voicing_01/4_train.lua:294: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...emeex/src/rnn/results/experiment3_voicing_01/4_train.lua:303: in function 'train'
+	resume.lua:121: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment3_voicing.lua:124: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

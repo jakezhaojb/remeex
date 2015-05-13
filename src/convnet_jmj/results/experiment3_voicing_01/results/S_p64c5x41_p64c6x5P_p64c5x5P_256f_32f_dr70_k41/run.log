@@ -1,0 +1,15 @@
+false
+...tin/torch/install/share/lua/5.1/nn/ClassNLLCriterion.lua:22: interrupted!
+stack traceback:
+	...tin/torch/install/share/lua/5.1/nn/ClassNLLCriterion.lua:22: in function 'forward'
+	...c/convnet_jmj/results/experiment3_voicing_01/4_train.lua:191: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...c/convnet_jmj/results/experiment3_voicing_01/4_train.lua:213: in function 'train'
+	...src/convnet_jmj/results/experiment3_voicing_01/doall.lua:67: in function <...src/convnet_jmj/results/experiment3_voicing_01/doall.lua:8>
+	[C]: in function 'xpcall'
+	...src/convnet_jmj/results/experiment3_voicing_01/doall.lua:92: in main chunk
+	[C]: in function 'dofile'
+	experiment3_voicing.lua:109: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

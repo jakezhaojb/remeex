@@ -25,6 +25,23 @@ function get_conv(nInputs, nOutputs, kSize, stride)
 end
 
 
+function get_conv_pool_nopad(nInputs, nOutputs, kSize, stride, poolSize)
+   local struct = nn.Sequential()
+   struct:add(nn.SpatialConvolutionMM(nInputs, nOutputs, kSize, 1, stride, 1))
+   struct:add(nn.ReLU())
+   struct:add(nn.SpatialMaxPooling(poolSize,1))
+   return struct
+end
+
+
+function get_conv_nopad(nInputs, nOutputs, kSize, stride)
+   local struct = nn.Sequential()
+   struct:add(nn.SpatialConvolutionMM(nInputs, nOutputs, kSize, 1, stride, 1))
+   struct:add(nn.ReLU())
+   return struct
+end
+
+
 function get_softmax(nClasses, nInputs, inputPlaneSize)
    local softmax = nn.Sequential()
    softmax:add(nn.View(nInputs*inputPlaneSize[1]*inputPlaneSize[2])

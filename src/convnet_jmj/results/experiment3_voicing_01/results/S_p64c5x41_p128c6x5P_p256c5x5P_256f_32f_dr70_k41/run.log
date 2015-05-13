@@ -1,0 +1,34 @@
+false
+/home/justin/torch/install/share/lua/5.1/torch/Tensor.lua:455: Wrong size for view. Input size: 100x256x10x11. Output size: 14080
+stack traceback:
+	[C]: in function 'error'
+	/home/justin/torch/install/share/lua/5.1/torch/Tensor.lua:455: in function 'view'
+	/home/justin/torch/install/share/lua/5.1/nn/View.lua:38: in function 'updateOutput'
+	/home/justin/torch/install/share/lua/5.1/nn/Sequential.lua:25: in function 'forward'
+	/home/justin/remeex/src/convnet_jmj/convnet_cqt/4_train.lua:190: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	/home/justin/remeex/src/convnet_jmj/convnet_cqt/4_train.lua:213: in function 'train'
+	resume.lua:121: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment3_voicing.lua:109: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
+false
+/home/justin/torch_utilities/sopt/adadelta.lua:45: bad argument #2 to 'add' (size do not match)
+stack traceback:
+	[C]: in function 'add'
+	/home/justin/torch_utilities/sopt/adadelta.lua:45: in function 'optimMethod'
+	/home/justin/remeex/src/convnet_jmj/convnet_cqt/4_train.lua:213: in function 'train'
+	resume.lua:121: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment3_voicing.lua:109: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
+true
+nil

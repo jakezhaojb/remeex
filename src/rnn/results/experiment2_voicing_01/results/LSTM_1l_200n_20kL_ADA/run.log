@@ -1,0 +1,13 @@
+false
+/home/justin/torch/install/share/lua/5.1/torch/Tensor.lua:235: interrupted!
+stack traceback:
+	/home/justin/torch/install/share/lua/5.1/torch/Tensor.lua:235: in function 'cuda'
+	...emeex/src/rnn/results/experiment2_voicing_01/4_train.lua:280: in function 'train'
+	.../remeex/src/rnn/results/experiment2_voicing_01/doall.lua:68: in function <.../remeex/src/rnn/results/experiment2_voicing_01/doall.lua:8>
+	[C]: in function 'xpcall'
+	.../remeex/src/rnn/results/experiment2_voicing_01/doall.lua:93: in main chunk
+	[C]: in function 'dofile'
+	experiment2_voicing.lua:123: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

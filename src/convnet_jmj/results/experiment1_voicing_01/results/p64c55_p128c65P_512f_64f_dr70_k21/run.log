@@ -1,0 +1,15 @@
+false
+...in/torch/install/share/lua/5.1/optim/ConfusionMatrix.lua:67: interrupted!
+stack traceback:
+	...in/torch/install/share/lua/5.1/optim/ConfusionMatrix.lua:67: in function 'batchAdd'
+	...c/convnet_jmj/results/experiment1_voicing_01/4_train.lua:196: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...c/convnet_jmj/results/experiment1_voicing_01/4_train.lua:210: in function 'train'
+	...src/convnet_jmj/results/experiment1_voicing_01/doall.lua:67: in function <...src/convnet_jmj/results/experiment1_voicing_01/doall.lua:8>
+	[C]: in function 'xpcall'
+	...src/convnet_jmj/results/experiment1_voicing_01/doall.lua:92: in main chunk
+	[C]: in function 'dofile'
+	experiment1_voicing.lua:115: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

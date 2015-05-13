@@ -1,0 +1,18 @@
+false
+/home/justin/torch/install/share/lua/5.1/nn/CAddTable.lua:9: interrupted!
+stack traceback:
+	/home/justin/torch/install/share/lua/5.1/nn/CAddTable.lua:9: in function 'func'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:204: in function 'neteval'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:234: in function 'forward'
+	...meex/src/rnn/results/experiment1_voicing_01b/4_train.lua:205: in function 'forwardpass'
+	...meex/src/rnn/results/experiment1_voicing_01b/4_train.lua:308: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...meex/src/rnn/results/experiment1_voicing_01b/4_train.lua:318: in function 'train'
+	resume.lua:121: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment1_voicing.lua:127: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

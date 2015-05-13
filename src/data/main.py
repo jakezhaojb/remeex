@@ -2,6 +2,9 @@
 # Author: Junbo (Jake) Zhao
 
 import os
+os.environ['MEDLEYDB_PATH']='/misc/vlgscratch2/LecunGroup/jakez/MedleyDB'
+import sys
+sys.path.append('/home/jz1672/lib/python2.7/site-packages/medleydb-0.1.0-py2.7.egg')
 from time import time
 from data_loader import *
 from data_proc import *
@@ -38,6 +41,26 @@ def mfccs_main():
             np.savetxt(os.path.join(save_path_mfcc, name+'.csv'), mfccs, fmt='%.4f', delimiter=',')
         if not os.path.exists(os.path.join(save_path_anno, name+'.csv')):
             np.savetxt(os.path.join(save_path_anno, name+'.csv'), m, fmt='%.4f', delimiter=',')
+        print "==> %s done." % name
+    print "==> done!"
+
+
+def stft_main():
+    print '==> STFT extracting'
+    generator = read_mdb_all_data_generator()
+    # Path
+    save_path_stft = os.path.join(save_path, 'stft')
+    os.system('mkdir -p ' + save_path_stft)
+    # Extracting
+    for g in generator:
+        try:
+            name, m, r = read_one_song(g)
+            notes = melody_to_midi(m,fmin=32.7032)
+        except:
+            continue
+        if not os.path.exists(os.path.join(save_path_stft, name+'.csv')):
+            stfts = feature_stft(r)
+            np.savetxt(os.path.join(save_path_stft, name+'.csv'), stfts, fmt='%.4f', delimiter=',')
         print "==> %s done." % name
     print "==> done!"
 
@@ -228,4 +251,4 @@ def raw_main_whole():
 
 
 if __name__ == '__main__':
-    notes_stride()
+    stft_main()

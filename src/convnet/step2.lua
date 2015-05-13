@@ -56,7 +56,7 @@ local irrelevant = {['nepoches'] = true,
 		    ['numthreads'] = true,
 		    ['debug'] = true,
           ['lrd'] = true}
-local modelname = 'model1'
+local modelname = 'model2'
 for k, v in pairs(opt) do
    if not irrelevant[k] then
       local v2 = ''

@@ -1,0 +1,60 @@
+false
+...meex/src/rnn/results/experiment1_voicing_01a/2_model.lua:584: bad argument #1 to 'copy' (torch.*Tensor expected, got number)
+stack traceback:
+	[C]: in function 'copy'
+	...meex/src/rnn/results/experiment1_voicing_01a/2_model.lua:584: in main chunk
+	[C]: in function 'dofile'
+	resume.lua:95: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:153: in main chunk
+	[C]: in function 'dofile'
+	experiment1_voicing.lua:135: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
+false
+...meex/src/rnn/results/experiment1_voicing_01a/2_model.lua:584: bad argument #1 to 'copy' (torch.*Tensor expected, got number)
+stack traceback:
+	[C]: in function 'copy'
+	...meex/src/rnn/results/experiment1_voicing_01a/2_model.lua:584: in main chunk
+	[C]: in function 'dofile'
+	resume.lua:95: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:153: in main chunk
+	[C]: in function 'dofile'
+	experiment1_voicing.lua:135: in main chunk
+	[C]: in function 'f'
+	[string "local f = function() return dofile 'experimen..."]:1: in main chunk
+	[C]: in function 'xpcall'
+	/home/justin/torch/install/share/lua/5.1/trepl/init.lua:583: in function 'repl'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:185: in main chunk
+	[C]: at 0x00405fd0
+false
+...meex/src/rnn/results/experiment1_voicing_01a/2_model.lua:584: attempt to call method 'getParameters' (a nil value)
+stack traceback:
+	...meex/src/rnn/results/experiment1_voicing_01a/2_model.lua:584: in main chunk
+	[C]: in function 'dofile'
+	resume.lua:95: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:153: in main chunk
+	[C]: in function 'dofile'
+	experiment1_voicing.lua:135: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
+false
+...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:229: interrupted!
+stack traceback:
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:229: in function 'forward'
+	...meex/src/rnn/results/experiment1_voicing_01a/4_train.lua:205: in function 'forwardpass'
+	...meex/src/rnn/results/experiment1_voicing_01a/4_train.lua:308: in function 'opfunc'
+	/home/justin/torch/install/share/lua/5.1/optim/sgd.lua:43: in function 'optimMethod'
+	...meex/src/rnn/results/experiment1_voicing_01a/4_train.lua:318: in function 'train'
+	resume.lua:125: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:153: in main chunk
+	[C]: in function 'dofile'
+	experiment1_voicing.lua:135: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
