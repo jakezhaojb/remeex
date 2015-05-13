@@ -1,0 +1,127 @@
+\documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{enumerate}
+\begin{document}
+
+\title{Machine Learning Final Project Proposal}
+\author{Justin Mao-Jones, Junbo(Jake) Zhao, Mengfei (Rita) Li}
+\date{\today}
+
+
+\maketitle
+
+\section{Introduction} %What is melody maybe and genre?
+ 
+
+
+\section{Data Description}
+   
+
+\section{Problem Identification}
+In this project, we will be focusing on two major areas in Music Content Processing: Melody Extraction and Genre Classification. Due to large amount of audio materials presented in the real world, we want to actively interact with these data and extract useful information for music related applications.
+
+\subsection{Melody Extraction}
+Traditionally, the melody extraction task is tackled by using signal processing techniques. In our case, we try to approach this problem using machine learning algorithms. First stage of this part is a binary classification for voicing detection (melody pitch presented or not) during the predefined time period. The second stage is ordinal regression problem %or regression? 
+to predict the pitch (ordinal labels from music notes) if the melody is presented based on previous model output.
+
+\subsection{Genre Classification}
+Another area that we want to explore is Genre Classification. Automatic Genre Classification will hugely benefit to Audio Information Retrieval without human judgment. Given a clip of music, we want to predict its genre from one of the following labels: Singer/Songwrite, Classical, Rock, World/Folk, Fusion, Jazz, Pop, Musical Theater and Rap. To group the similar music together, we want to treat it as multi-classification problem in machine learning. 
+
+\section{Approaches}
+\subsection{Feature Extraction}
+Since Music Information Retrieval (MIR) is closely related to Speech Recognition community, it absorbs amounts of well-suited feature descriptors and 
+machine learning pipeline from Speech community which has a relatively larger amount of literature.
+We briefly study the marriage between the communities and settle a few methods that might be durable. 
+Despite the potential need of task-specific for melody extraction feature design, we want to start with off-the-shell features such as Mel-Frequency Cepstral Coefficients (MFCC) [J1], Short-time Fourier Transform (STFT) or multi-resolution FFT (MRFFT) [J2].
+
+\begin{itemize}
+\item \textbf{STFT}. STFT is a widely used signal preprocessing technique. In general, the signal is chunked into frames where STFT is applied to each chunked frame, with a window length typically assigned as 50 and 100ms. 
+
+\item \textbf{MRFFT}. The resolution issue arises inherently with Fourier transform. MRFFT overcomes it by taking frequency spectrum out of multi-resolution windows.
+
+\item \textbf{MFCC}. Dominant feature descriptor in Speech community in the past 30 years. It is basically a linear cosine encoding of the log power spectrum on a mel-scale of frequency which biologically originated from human's ears. 
+
+\item \textbf{Dictionary Learning}. Dictionary learning is an adaptive content-based feature self-learning approach. Its goal basically is to get local descriptions by learning a linear combination of a pre-defined dictionary. 
+The weights of the “words” in the dictionary are the new representation of the local window. The process f getting the dictionary is unsupervised; K-means and K-SVD [J3] is two common methods to obtain the dictionary.
+\end{itemize}
+
+\subsection{Classifier or Regressor}
+A natural next step is to fit extracted features into a classifier or regressor that employs the power of Machine Learning. Hidden Markov Model (HMM) and Support Vector Machine (SVM) are our primary elections.
+\begin{itemize}
+\item \textbf{SVM}. Both linear kernel and RBF kernel would be put into uses.
+\item \textbf{HMM}. HMM is a directed model in which the system being modeled is regarded as Markov process with hidden states (unobserved). 
+In general, the connection between hidden spaces and observed states will be learnt by learnt by Expectation–maximization (EM) method.
+\end{itemize}
+
+\subsection{End-to-end learning}
+Inspired by the sparking success of Deep Learning in Speech recognition, an alternative approach is to apply end-to-end learning techniques which derives useful information from the raw audio waves [J4]. 
+Convolution Neural Network (CNN) and Recurrent Neural Network (RNN) are two predominant choices modeling sequential data. Both of them are applied on raw audio input and trained by gradient based method with Back Propagation.
+\begin{itemize}
+\item \textbf{CNN}. CNN operates between Temporal Convolution, Temporal Pooling and Non-linear activations. On top of the network framework, a classifier or regressor would be placed to finish the job of classifying or regressing.
+\item \textbf{RNN}. Differing from feedforward neural network, RNN uses the internal memory to process signals in a temporal dynamicalsm.
+\end{itemize}
+
+
+\section{Evaluation Metrics For Model Performance}
+Due to model difference, we are going to implement different evaluation metrics for model assessment
+
+\begin{itemize}
+\item Melody Extraction: 
+
+For voicing detection, we are going to monitor the the probability that a frame which is truly voiced labeled as voice. For pitch estimation, 
+\end{itemize}
+  
+ 
+
+
+
+
+
+ 
+%Any reference goes here: 
+\begin{thebibliography}{99}
+\bibitem{
+@article{salamon2014melody,
+  title={Melody extraction from polyphonic music signals: Approaches, applications and challenges},
+  author={Salamon, Justin and G{\'o}mez, Emilia and Ellis, Daniel PW and Richard, Gael}
+}}
+
+
+
+\bibitem{
+@inproceedings{yeh2012hybrid,
+  title={A hybrid approach to singing pitch extraction based on trend estimation and hidden Markov models},
+  author={Yeh, Tzu-Chun and Wu, Ming-Ju and Jang, JR and Chang, Wei-Lun and Liao, I-Bin},
+  booktitle={Acoustics, Speech and Signal Processing (ICASSP), 2012 IEEE International Conference on},
+  pages={457--460},
+  year={2012},
+  organization={IEEE}
+}
+}
+
+
+\bibitem{
+@article{aharon2006k,
+  title={K-SVD: An Algorithm for Designing Overcomplete Dictionaries for Sparse Representation},
+  author={Aharon, Michal and Elad, Michael and Bruckstein, Alfred},
+  journal={IEEE TRANSACTIONS ON SIGNAL PROCESSING},
+  volume={54},
+  number={11},
+  pages={4311},
+  year={2006}
+}
+}
+
+
+\bibitem{
+@inproceedings{humphrey2012moving,
+  title={Moving Beyond Feature Design: Deep Architectures and Automatic Feature Learning in Music Informatics.},
+  author={Humphrey, Eric J and Bello, Juan Pablo and LeCun, Yann},
+  organization={Citeseer}
+}
+}
+\end{thebibliography}
+
+
+
+\end{document}
