@@ -1,0 +1,16 @@
+false
+...in/torch/install/share/lua/5.1/optim/ConfusionMatrix.lua:84: interrupted!
+stack traceback:
+	...in/torch/install/share/lua/5.1/optim/ConfusionMatrix.lua:84: in function 'batchAdd'
+	...rc/rnn/results/experiment15_chunks_01/4_train_chunks.lua:210: in function 'forwardpass'
+	...rc/rnn/results/experiment15_chunks_01/4_train_chunks.lua:409: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...rc/rnn/results/experiment15_chunks_01/4_train_chunks.lua:420: in function 'train'
+	resume.lua:122: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:150: in main chunk
+	[C]: in function 'dofile'
+	experiment15_chunks.lua:207: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

@@ -8,6 +8,18 @@ print '==> defining validation procedure'
 -- track best model
 bestaccuracy = bestaccuracy or  0
 
+
+function evaluateConfusion(confusion)
+  confusion:updateValids()
+  local n = opt.num_outputs
+  local x = confusion.mat
+  local VxR = torch.sum(x[{{2,n},{2,n}}])/torch.sum(x[{{2,n},{}}])
+  local VxF = torch.sum(x[{1,{2,n}}])/torch.sum(x[{1,{}}])
+  local RPA = torch.trace(x[{{2,n},{2,n}}])/torch.sum(x[{{2,n},{}}])
+  return VxR, VxF, RPA
+end
+
+
 -- validate function
 function validate()
    confusion:zero()
@@ -85,6 +97,29 @@ function validate()
       os.execute('rm -f ' .. filename)
       torch.save(filename, model)
       bestaccuracy = confusion.totalValid
+
+      confusionfile = io.open(paths.concat(results_folder,'confusion_best.csv'),'w+')
+      for i = 1, confusion.mat:size(1) do
+        row = {}
+        for j = 1, confusion.mat:size(2) do
+          table.insert(row,confusion.mat[{i,j}])
+        end
+        confusionfile:write(table.concat(row,','))
+      end
+      confusionfile:flush()
+      confusionfile:close()
+
+      outputfile = io.open(paths.concat(results_folder,'evaluation_best.txt'),'w+')
+      local VxR, VxF, RPA = evaluateConfusion(confusion)
+      print('VxR =',VxR*100)
+      print('VxF =',VxF*100)
+      print('RPA =',RPA*100)
+      outputfile:write('VxR =',VxR*100,'\n')
+      outputfile:write('VxF =',VxF*100,'\n')
+      outputfile:write('RPA =',RPA*100,'\n')
+      outputfile:write('% mean class accuracy (validation set)',confusion.totalValid * 100,'\n')
+      outputfile:flush()
+      outputfile:close()
    end
 
    -- update log/plot

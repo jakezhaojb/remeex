@@ -83,7 +83,7 @@ params['test_LSTM_melody'] = {
 							   ['rnn_size']=200,
 							   ['binarylabel']=false
 					   			}]]
-
+--[[
 params['test_LSTM_melody_3l'] = {							
 							   ['device']=1,
 							   ['model']='LSTM2',
@@ -95,6 +95,36 @@ params['test_LSTM_melody_3l'] = {
 							   ['kL']=20,
 							   ['kR']=0,
 							   ['layers']=3,
+							   ['rnn_size']=200,
+							   ['binarylabel']=false
+					   			}]]
+--[[
+params['LSTM_2l_200n_20kL_dr10_mn3'] = {							
+							   ['device']=1,
+							   ['model']='LSTM2',
+							   ['max_grad_norm']=3,
+							   ['peepholes']=false,
+							   ['dropout']=0.10,
+							   ['avgBPTT']=true,
+							   ['trainParams']=trainParams_ADA,
+							   ['kL']=20,
+							   ['kR']=0,
+							   ['layers']=2,
+							   ['rnn_size']=200,
+							   ['binarylabel']=false
+					   			}]]
+
+params['LSTM_2l_200n_20kL_dr25_mn3'] = {							
+							   ['device']=1,
+							   ['model']='LSTM2',
+							   ['max_grad_norm']=3,
+							   ['peepholes']=false,
+							   ['dropout']=0.25,
+							   ['avgBPTT']=true,
+							   ['trainParams']=trainParams_ADA,
+							   ['kL']=20,
+							   ['kR']=0,
+							   ['layers']=2,
 							   ['rnn_size']=200,
 							   ['binarylabel']=false
 					   			}

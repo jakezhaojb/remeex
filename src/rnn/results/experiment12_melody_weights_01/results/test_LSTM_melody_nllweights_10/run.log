@@ -1,0 +1,18 @@
+false
+/home/justin/torch/install/share/lua/5.1/torch/Tensor.lua:235: interrupted!
+stack traceback:
+	/home/justin/torch/install/share/lua/5.1/torch/Tensor.lua:235: in function 'float'
+	...rc/rnn/results/experiment12_melody_weights_01/1_data.lua:50: in function 'processdata'
+	...rc/rnn/results/experiment12_melody_weights_01/1_data.lua:114: in function 'constructdata'
+	...rc/rnn/results/experiment12_melody_weights_01/1_data.lua:146: in main chunk
+	[C]: in function 'dofile'
+	resume.lua:87: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment12_melody.lua:166: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0
+true
+nil

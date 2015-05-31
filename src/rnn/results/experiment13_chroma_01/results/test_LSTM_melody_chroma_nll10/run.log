@@ -1,0 +1,14 @@
+false
+...remeex/src/rnn/results/experiment13_chroma_01/1_data.lua:195: interrupted!
+stack traceback:
+	...remeex/src/rnn/results/experiment13_chroma_01/1_data.lua:195: in function 'normalize'
+	...remeex/src/rnn/results/experiment13_chroma_01/1_data.lua:214: in main chunk
+	[C]: in function 'dofile'
+	resume.lua:87: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment13_chroma.lua:167: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

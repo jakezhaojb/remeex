@@ -1,0 +1,19 @@
+false
+...tin/torch/install/share/lua/5.1/nn/ClassNLLCriterion.lua:35: interrupted!
+stack traceback:
+	...tin/torch/install/share/lua/5.1/nn/ClassNLLCriterion.lua:35: in function 'updateOutput'
+	...ch/install/share/lua/5.1/nngraph/ModuleFromCriterion.lua:18: in function 'func'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:204: in function 'neteval'
+	...e/justin/torch/install/share/lua/5.1/nngraph/gmodule.lua:234: in function 'forward'
+	...c/rnn/results/experiment12_melody_weights_01/4_train.lua:208: in function 'forwardpass'
+	...c/rnn/results/experiment12_melody_weights_01/4_train.lua:317: in function 'func'
+	/home/justin/torch_utilities/sopt/adadelta.lua:46: in function 'optimMethod'
+	...c/rnn/results/experiment12_melody_weights_01/4_train.lua:327: in function 'train'
+	resume.lua:121: in function <resume.lua:61>
+	[C]: in function 'xpcall'
+	resume.lua:149: in main chunk
+	[C]: in function 'dofile'
+	experiment12_melody.lua:184: in main chunk
+	[C]: in function 'dofile'
+	...stin/torch/install/lib/luarocks/rocks/trepl/scm-1/bin/th:131: in main chunk
+	[C]: at 0x00405fd0

@@ -35,6 +35,16 @@ function generateMelodyHist(DATA)
 	return hist
 end
 
+function getChroma(melody)
+	local chroma = torch.ones(melody:size())
+	for i = 1, melody:size(1) do
+		if melody[i] > 1 then
+			chroma[i] = ((melody[i]-2) % 12) + 1
+		end
+	end
+	return chroma
+end
+
 function processdata(CQT,kL,kR,binarylabel,MELODY)
 	local IDX = {}
 	local n = 0
@@ -43,6 +53,7 @@ function processdata(CQT,kL,kR,binarylabel,MELODY)
 	local lengths = {}
 	local songcount = 0
 	local songmap = {}
+	local CHROMA = {}
 	for song,cqt in pairs(CQT) do
 		if cqt:size()[1] == 84 then
 			CQT[song] = CQT[song]:transpose(1,2)
@@ -52,19 +63,21 @@ function processdata(CQT,kL,kR,binarylabel,MELODY)
 		IDX[song] = {}
 		IDX[song].start = n + 1
 		lengths[song] = cqt:size()[1]
-		n = n + lengths[song] - opt.kL - opt.kR
+		n = n + 1 + lengths[song] - opt.kL - opt.kR
 		IDX[song].finish = n
 		means[song] = torch.mean(cqt,1)
 		stds[song] = torch.std(cqt,1)
 		if binarylabel == true then
 			MELODY[song] = torch.gt(MELODY[song],0):reshape(cqt:size()[1]):double()+1
+			CHROMA[song] = nil
 		else
 			MELODY[song] = MELODY[song]:reshape(cqt:size()[1]):double()+1
+			CHROMA[song] = getChroma(MELODY[song])
 		end
 		songcount = songcount+1
 		table.insert(songmap,song)
 	end
-	return IDX,n,means,stds,lengths,songcount,songmap
+	return IDX,n,means,stds,lengths,songcount,songmap,CHROMA
 end
 
 function whichsong(i,IDX)
@@ -80,30 +93,48 @@ end
 
 function grabsample(i,DATA)
 	local song,j = whichsong(i,DATA.IDX)
-	local cqt = DATA.CQT[song][{{j,opt.kL+j+opt.kR},{}}]
-	local melody = DATA.MELODY[song][{{j,opt.kL+j+opt.kR}}]
-	return cqt,melody
+	local cqt = DATA.CQT[song][{{j,opt.kL+j-1},{}}]
+	local melody = DATA.MELODY[song][{{j,opt.kL+j-1}}]
+	local chroma = DATA.CHROMA[song][{{j,opt.kL+j-1}}]
+	return cqt,melody:reshape(1,melody:size(1)),chroma:reshape(1,chroma:size(1))
 end
 
-function cqt2batch(CQT,MELODY)
+function cqt2batch(CQT,MELODY,CHROMA)
 	local batchCQT = {}
 	local batchMELODY = {}
+	local batchCHROMA = {}
+	local batchSegmentLength = {}
+	local CHUNKS = {}
 	for song,cqt in pairs(CQT) do
 		local melody = MELODY[song]
+		local chroma = CHROMA[song]
 		local n = cqt:size(1)
 		local seqlength = math.floor(n/batchSize)
 		local segments_cqt = {}
 		local segments_melody = {}
+		local segments_chroma = {}
 		for b=1,batchSize do
 			local from = seqlength*(b-1)+1
 			local to = seqlength*b
 			table.insert(segments_cqt,cqt[{{from,to},{}}]:reshape(1,seqlength,cqt:size(2)))
 			table.insert(segments_melody,melody[{{from,to}}]:reshape(1,seqlength))
+			if chroma then
+				table.insert(segments_chroma,chroma[{{from,to}}]:reshape(1,seqlength))
+			end
 		end
 		batchCQT[song] = nn.JoinTable(1):forward(segments_cqt)
 		batchMELODY[song] = nn.JoinTable(1):forward(segments_melody)
+		batchCHROMA[song] = nn.JoinTable(1):forward(segments_chroma)
+		local segment_length = math.floor(batchCQT[song]:size(2)/opt.kL)
+
+		batchSegmentLength[song] = segment_length
+		for t= 1, segment_length do
+			local from = (t-1)*opt.kL+1
+			local to = t*opt.kL
+			table.insert(CHUNKS,{song,from,to})
+		end
 	end
-	return batchCQT,batchMELODY
+	return batchCQT,batchMELODY,batchCHROMA,batchSegmentLength,CHUNKS
 end
 
 
@@ -111,12 +142,17 @@ end
 function constructdata(opt,splitname)
 	local CQT = torch.load(paths.concat(opt.preprocessedData,splitname .. '_cqt.t7b'))
 	local MELODY = torch.load(paths.concat(opt.preprocessedData,splitname .. '_melody.t7b'))
-	local IDX,n,means,stds,lens,songcount,songmap = processdata(CQT,opt.kL,opt.kR,opt.binarylabel,MELODY)
-	local batchCQT,batchMELODY = cqt2batch(CQT,MELODY)
+	local IDX,n,means,stds,lens,songcount,songmap,CHROMA = processdata(CQT,opt.kL,opt.kR,opt.binarylabel,MELODY)
+	local batchCQT,batchMELODY,batchCHROMA,batchSegmentLength,CHUNKS = cqt2batch(CQT,MELODY,CHROMA)
 	DATA = {
 		IDX=IDX,
-		CQT=batchCQT,
-		MELODY=batchMELODY,
+		CQT=CQT,
+		MELODY=MELODY,
+		CHROMA=CHROMA,
+		batchCQT=batchCQT,
+		batchMELODY=batchMELODY,
+		batchCHROMA=batchCHROMA,
+		CHUNKS=CHUNKS,
 		kL=opt.kL,
 		kR=opt.kR,
 		means=means,
@@ -147,6 +183,10 @@ TRAIN = constructdata(opt,'train')
 if opt.nllweights then
 	MELODY_HIST = generateMelodyHist(TRAIN)
 end
+
+
+
+
 --mean_freq,mean_global,std_freq,std_global = get_mean_std(TRAIN)
 
 --[[

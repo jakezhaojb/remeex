@@ -721,6 +721,8 @@ elseif opt.model == 'cuda11_pad' then
    model:add(nn.ReLU())
    model:add(nn.Linear(512, noutputs))
 
+
+
 else
 
    error('unknown -model')

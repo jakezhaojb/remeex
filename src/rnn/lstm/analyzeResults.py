@@ -15,11 +15,17 @@ tag3 = 'experiment3_voicing_01' # peepholes, normalization, larger sequence
 tag4 = 'experiment4_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
 tag5 = 'experiment5_voicing_01' # peepholes, normalization, ADA/SGD, avgBPTT
 tag6 = 'experiment6_voicing_01' # LSTM2, ReLU, peepholes
-tag7 = 'experiment7_voicing_03' # 
+tag7 = 'experiment7_voicing_03' # voicing convLSTM
 tag8 = 'experiment8_voicing_01' # LSTM2, melody
 tag9 = 'experiment9_voicing_01' # convLSTM,melody
+#tag10 = 'experiment10_voicing_01' # IGNORE                                                                                             
+#tag11 = 'experiment11_voicing_01' # IGNORE
+tag12 = 'experiment12_melody_weights_01' # nll weights,melody
+tag13 = 'experiment13_chroma_01' # chroma
+tag14 = 'experiment14_chunks_01' # chunks                                                           
+tag15 = 'experiment15_chunks_01' # chunks
 
-tag = tag7
+tag = tag12
 #-------------------------------------------------------------
 
 path = os.path.join(os.path.join('../results',tag),'results')
@@ -92,7 +98,8 @@ def pltresults(results,title,tag,exclusions=[],bestval=None,fromiter=0,legend=Tr
         fig,ax = plt.subplots()       
         fig.set_size_inches(10,10)
         for k,v in results:
-            if k not in exclusions:
+            #if k not in exclusions:
+            if ('025' in k or 'final' in k) and ('dr' not in k)  and ('SGD' not in k):
                 v = v.iloc[min(fromiter,len(v)):]
                 its = len(v)
                 if bestval:
