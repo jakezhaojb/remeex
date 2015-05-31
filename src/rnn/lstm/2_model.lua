@@ -119,6 +119,28 @@ function create_network(criterion)
   return transfer_data(network)
 end
 
+function create_network_context()
+  local x                = nn.Identity()()
+  local prev_s           = nn.Identity()()
+  local i                = {[0] = nn.Linear(opt.num_inputs,opt.rnn_size)(x)}
+  local next_s           = {}
+  local split         = {prev_s:split(2 * opt.layers)}
+  for layer_idx = 1, opt.layers do
+    local prev_c         = split[2 * layer_idx - 1]
+    local prev_h         = split[2 * layer_idx]
+    local dropped        = nn.Dropout(opt.dropout)(i[layer_idx - 1])
+    local next_c, next_h = lstm(dropped, prev_c, prev_h)
+    table.insert(next_s, next_c)
+    table.insert(next_s, next_h)
+    i[layer_idx] = next_h
+  end
+  -- setup predictions as additional output to model
+  local network           = nn.gModule({x, prev_s},
+                                      {nn.Identity()(next_s)})
+  network:getParameters():uniform(-opt.init_weight, opt.init_weight)
+  return transfer_data(network)
+end
+
 function create_network_conv()
   model.reshapeInputs = true
   local x         = nn.Identity()()
@@ -329,6 +351,43 @@ elseif opt.model == 'LSTM2' then
   end
   model.core_network = core_network
   model.rnnL = g_cloneManyTimes(core_network, opt.kL)
+  model.norm_dw = 0
+  model.err = transfer_data(torch.zeros(opt.kL))
+
+elseif opt.model == 'LSTM3' then
+
+  print("Creating RNN LSTM network.")
+  local criterion
+  if opt.nllweights then
+    local weights = torch.ones(opt.num_outputs)
+    weights[1] = opt.nomelodyweight or 0.05
+    criterion = nn.ClassNLLCriterion(weights)
+  else
+    criterion = nn.ClassNLLCriterion()
+  end
+  local core_network = create_network(criterion)
+  local context_network = create_network_context(criterion)
+  parameters, gradParameters = core_network:getParameters()
+  cparameters, cgradparameters = context_network:getParameters()
+  model.c = {}
+  model.cds = {}
+  for j = 0, opt.kL do
+    model.s[j] = {}
+    model.c[j] = {}
+    for d = 1, 2 * opt.layers do
+      model.s[j][d] = transfer_data(torch.zeros(batchSize, opt.rnn_size))
+      model.c[j][d] = transfer_data(torch.zeros(batchSize, opt.rnn_size))
+    end
+  end
+  for d = 1, 2 * opt.layers do
+    model.start_s[d] = transfer_data(torch.zeros(batchSize, opt.rnn_size))
+    model.ds[d] = transfer_data(torch.zeros(batchSize, opt.rnn_size))
+    model.cds[d] = transfer_data(torch.zeros(batchSize, opt.rnn_size))
+  end
+  model.core_network = core_network
+  mode.context_network = context_network
+  model.rnnL = g_cloneManyTimes(core_network, opt.kL)
+  model.context_clones = g_cloneManyTimes(context_network, opt.kL)
   model.norm_dw = 0
   model.err = transfer_data(torch.zeros(opt.kL))
 
